@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mario Spelling Lab - Fixed</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        :root { --mario-blue: #5C94FC; --mario-red: #E4000F; --mario-yellow: #FBD000; --brick: #B53120; }
+        body { margin: 0; padding: 0; background: var(--mario-blue); font-family: 'Press Start 2P', cursive; color: white; text-align: center; }
+        .container { max-width: 500px; margin: auto; padding: 15px; }
+        h1 { color: var(--mario-yellow); text-shadow: 3px 3px #000; font-size: 14px; margin: 15px 0; line-height: 1.4; }
+        
+        #lang-screen, #setup-area, #game-area { display: none; padding-top: 10px; }
+        #lang-screen { display: block; }
+
+        .btn-large { 
+            background: var(--brick); border: 4px solid #fff; padding: 25px; 
+            margin: 15px 0; cursor: pointer; display: block; width: 100%; 
+            box-sizing: border-box; box-shadow: 0 6px #000; color: white; 
+            font-family: 'Press Start 2P'; font-size: 12px;
+        }
+
+        .mario-btn { 
+            background: var(--mario-red); color: white; border: 4px solid #000; 
+            padding: 12px; cursor: pointer; font-family: 'Press Start 2P'; 
+            font-size: 10px; box-shadow: 0 4px #660000; margin: 5px; 
+        }
+
+        .stats { 
+            display: flex; justify-content: space-between; font-size: 8px; 
+            margin-bottom: 15px; padding: 12px; background: rgba(0,0,0,0.4); 
+            border: 2px solid #fff; border-radius: 5px; 
+        }
+        .stats span { color: var(--mario-yellow); }
+
+        .q-block { 
+            background: var(--mario-yellow); border: 4px solid #000; 
+            padding: 20px; margin: 10px auto; min-width: 200px; 
+            display: inline-block; color: #000; font-size: 20px; 
+            letter-spacing: 5px; box-shadow: 4px 4px 0 rgba(0,0,0,0.2); 
+        }
+
+        .mode-selector { display: flex; justify-content: center; gap: 10px; margin: 15px 0; }
+        .mode-btn { 
+            flex: 1; padding: 15px 5px; font-size: 8px; font-family: 'Press Start 2P';
+            background: #555; color: #fff; border: 3px solid #000; cursor: pointer;
+        }
+        .mode-btn.active { background: var(--mario-red); border-color: yellow; color: white; }
+
+        #tile-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .tile { background: var(--brick); border: 3px solid #000; padding: 18px 0; font-size: 18px; box-shadow: 3px 3px #000; cursor: pointer; }
+
+        #hw-area { display: none; }
+        #canvas-box { 
+            position: relative; width: 300px; height: 300px; margin: 0 auto; 
+            background: #fff; border: 5px solid var(--brick); border-radius: 10px; 
+        }
+        #hw-canvas { border-radius: 5px; touch-action: none; }
+        
+        /* 识别中提示 */
+        #hw-msg { font-size: 8px; color: yellow; height: 20px; margin-top: 5px; }
+
+        .exit-btn { background: #555; font-size: 8px; margin-top: 20px; border-color: #000; }
+
+        @keyframes shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }
+        .shake { animation: shake 0.2s; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>MARIO SPELLING<br>LABORATORY</h1>
+
+    <div id="lang-screen">
+        <div class="btn-large" onclick="selectLang('ms-MY')">BAHASA MELAYU</div>
+        <div class="btn-large" onclick="selectLang('en-US')" style="background:#2196F3;">ENGLISH</div>
+    </div>
+
+    <div id="setup-area">
+        <textarea id="word-input"></textarea><br>
+        <button class="mario-btn" style="width: 80%; padding: 20px;" onclick="startGame()">START GAME!</button><br>
+        <button class="mario-btn exit-btn" onclick="backToHome()">⬅ EXIT</button>
+    </div>
+
+    <div id="game-area">
+        <div class="stats">
+            <div>COINS:<br><span id="coin-val">0</span></div>
+            <div>DONE:<br><span id="correct-count">0</span></div>
+            <div>MODE:<br><span id="lang-tag">BM</span></div>
+        </div>
+
+        <div class="mode-selector">
+            <button id="mode-btn-tile" class="mode-btn active" onclick="setMode('tile')">TILES MODE</button>
+            <button id="mode-btn-hw" class="mode-btn" onclick="setMode('hw')">WRITING MODE</button>
+        </div>
+
+        <button class="mario-btn" style="background:var(--mario-yellow); color:#000; width:90%;" onclick="speakCurrent()">🔊 REPLAY SOUND</button>
+        
+        <div id="hw-msg"></div>
+
+        <div class="q-block" id="q-block"><div id="display-text"></div></div>
+
+        <div id="tile-grid"></div>
+
+        <div id="hw-area">
+            <div id="canvas-box">
+                <canvas id="hw-canvas" width="300" height="300"></canvas>
+            </div>
+            <button class="mario-btn" onclick="clearC()" style="background:#666; width: 60%;">CLEAR</button>
+        </div>
+
+        <button class="mario-btn exit-btn" onclick="backToHome()">⬅ QUIT TO MENU</button>
+    </div>
+</div>
+
+<audio id="s-coin" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3" preload="auto"></audio>
+<audio id="s-win" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3" preload="auto"></audio>
+<audio id="s-wrong" src="https://assets.mixkit.co/active_storage/sfx/132/132-preview.mp3" preload="auto"></audio>
+
+<script>
+    let currentLang = 'ms-MY', rawWordList = [], deck = [], target = "", progress = "", scoreCoins = 0, totalCorrect = 0, inputMode = 'tile';
+    const canvas = document.getElementById('hw-canvas'), ctx = canvas.getContext('2d');
+    let drawing = false, strokes = [], timer = null;
+
+    function backToHome() {
+        if (confirm("Return to main menu?")) {
+            scoreCoins = 0; totalCorrect = 0;
+            document.getElementById('coin-val').innerText = "0";
+            document.getElementById('correct-count').innerText = "0";
+            document.getElementById('game-area').style.display = 'none';
+            document.getElementById('setup-area').style.display = 'none';
+            document.getElementById('lang-screen').style.display = 'block';
+        }
+    }
+
+    function selectLang(l) {
+        // iOS 激活语音
+        window.speechSynthesis.speak(new SpeechSynthesisUtterance(''));
+        currentLang = l;
+        document.getElementById('lang-screen').style.display = 'none';
+        document.getElementById('setup-area').style.display = 'block';
+        const inputArea = document.getElementById('word-input');
+        if(l === 'ms-MY') {
+            inputArea.value = "sekolah, buku, murid, guru, makan";
+            document.getElementById('lang-tag').innerText = "BM";
+        } else {
+            inputArea.value = "school, book, student, teacher, apple";
+            document.getElementById('lang-tag').innerText = "ENG";
+        }
+    }
+
+    function startGame() {
+        const val = document.getElementById('word-input').value;
+        rawWordList = val.toUpperCase().split(/[ ,，\n]+/).filter(w => w.trim() !== "");
+        if(rawWordList.length === 0) return alert("Please enter words!");
+        document.getElementById('setup-area').style.display = 'none';
+        document.getElementById('game-area').style.display = 'block';
+        deck = []; nextQuestion();
+    }
+
+    function nextQuestion() {
+        if (deck.length === 0) deck = [...rawWordList].sort(() => Math.random() - 0.5);
+        progress = ""; target = deck.pop();
+        updateUI(); renderTiles(); clearC(); speakCurrent();
+    }
+
+    function speakCurrent() {
+        window.speechSynthesis.cancel();
+        const msg = new SpeechSynthesisUtterance(target.toLowerCase());
+        msg.lang = currentLang; msg.rate = 0.8;
+        window.speechSynthesis.speak(msg);
+    }
+
+    function check(c) {
+        if(c === target[progress.length]) {
+            progress += c; playSfx('s-coin'); updateUI();
+            if(progress === target) {
+                scoreCoins += 10; totalCorrect += 1;
+                document.getElementById('coin-val').innerText = scoreCoins;
+                document.getElementById('correct-count').innerText = totalCorrect;
+                playSfx('s-win'); setTimeout(nextQuestion, 1500);
+            }
+        } else {
+            playSfx('s-wrong');
+            document.getElementById('q-block').classList.add('shake');
+            setTimeout(() => document.getElementById('q-block').classList.remove('shake'), 200);
+            progress = ""; updateUI();
+        }
+    }
+
+    function updateUI() {
+        let d = ""; for(let i=0; i<target.length; i++) d += (progress[i] || "_") + " ";
+        document.getElementById('display-text').innerText = d;
+    }
+
+    function renderTiles() {
+        const grid = document.getElementById('tile-grid'); grid.innerHTML = "";
+        let pool = target.split("");
+        while(pool.length < 12) pool.push("ABCDEFGHIJKLMNOPQRSTUVWXYZ"[Math.floor(Math.random()*26)]);
+        pool.sort(() => Math.random() - 0.5);
+        pool.forEach(c => {
+            const t = document.createElement('div'); t.className = 'tile'; t.innerText = c;
+            t.onclick = () => check(c); grid.appendChild(t);
+        });
+    }
+
+    function setMode(m) {
+        inputMode = m;
+        document.getElementById('tile-grid').style.display = (m==='tile')?'grid':'none';
+        document.getElementById('hw-area').style.display = (m==='hw')?'block':'none';
+        document.getElementById('mode-btn-tile').classList.toggle('active', m==='tile');
+        document.getElementById('mode-btn-hw').classList.toggle('active', m==='hw');
+    }
+
+    // --- 修复后的手写逻辑 ---
+    canvas.addEventListener('touchstart', e => { e.preventDefault(); startD(e.touches[0]); });
+    canvas.addEventListener('touchmove', e => { e.preventDefault(); moveD(e.touches[0]); });
+    canvas.addEventListener('touchend', e => { e.preventDefault(); stopD(); });
+    canvas.addEventListener('mousedown', startD);
+    canvas.addEventListener('mousemove', moveD);
+    window.addEventListener('mouseup', stopD);
+
+    function startD(e) { 
+        drawing=true; const r=canvas.getBoundingClientRect(); 
+        const x=e.clientX-r.left, y=e.clientY-r.top; 
+        ctx.lineWidth=12; ctx.lineCap='round'; ctx.strokeStyle='#000'; ctx.beginPath(); ctx.moveTo(x,y); 
+        strokes.push([[x,y,Date.now()]]); 
+        if(timer) clearTimeout(timer);
+        document.getElementById('hw-msg').innerText = ""; 
+    }
+    function moveD(e) { if(!drawing) return; const r=canvas.getBoundingClientRect(); const x=e.clientX-r.left, y=e.clientY-r.top; ctx.lineTo(x,y); ctx.stroke(); strokes[strokes.length-1].push([x,y,Date.now()]); }
+    function stopD() { if(!drawing) return; drawing=false; timer=setTimeout(recognize,800); }
+    function clearC() { ctx.clearRect(0,0,300,300); strokes=[]; document.getElementById('hw-msg').innerText = ""; }
+
+    async function recognize() {
+        if(strokes.length === 0) return;
+        document.getElementById('hw-msg').innerText = "Tengah cam... (Recognizing...)";
+        
+        const body = {
+            options: "enable_pre_space",
+            requests: [{
+                writing_guide: { writing_area_width: 300, writing_area_height: 300 },
+                ink: strokes.map(s => [s.map(p=>p[0]), s.map(p=>p[1]), s.map(p=>p[2])]),
+                language: "en"
+            }]
+        };
+
+        try {
+            // 切换了更稳定的 API 地址
+            const res = await fetch('https://inputtools.google.com/request?ime=handwriting&app=mobilesearch&cs=1&oe=UTF-8', {
+                method: 'POST',
+                body: JSON.stringify(body),
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const data = await res.json();
+            
+            if(data[0] === "SUCCESS") {
+                const candidates = data[1][0][1];
+                let found = "";
+                for(let c of candidates) {
+                    let char = c.trim().toUpperCase();
+                    if(char==="0") char="O"; if(char==="1") char="I"; if(char==="5") char="S";
+                    if(/^[A-Z]$/.test(char)) { found=char; break; }
+                }
+                if(found) {
+                    check(found);
+                    document.getElementById('hw-msg').innerText = "Dapat: " + found;
+                } else {
+                    document.getElementById('hw-msg').innerText = "Tak faham... (Try again)";
+                }
+                clearC();
+            }
+        } catch(e) {
+            document.getElementById('hw-msg').innerText = "Internet Error! 🌐";
+            console.error(e);
+        }
+    }
+
+    function playSfx(id) { const a = document.getElementById(id); a.currentTime = 0; a.play().catch(()=>{}); }
+</script>
+</body>
+</html>

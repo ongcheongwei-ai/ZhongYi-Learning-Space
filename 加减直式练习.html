@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>趣味数学竖式小超人</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f0faff;
+            --primary-color: #3b82f6;
+            --accent-color: #f59e0b;
+            --success-color: #10b981;
+            --error-color: #ef4444;
+            --borrow-color: #d946ef;
+        }
+
+        body {
+            margin: 0; padding: 0;
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: var(--bg-color);
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; overflow: hidden;
+        }
+
+        #app {
+            width: 95%; max-width: 480px;
+            background: #fff; border-radius: 40px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            padding: 20px; position: relative;
+            border: 6px solid #fff;
+            z-index: 10;
+        }
+
+        .header { display: flex; justify-content: space-between; margin-bottom: 15px; }
+        .star-box { color: var(--accent-color); font-weight: bold; font-size: 1.5rem; }
+
+        .level-tabs { display: flex; gap: 5px; margin-bottom: 20px; }
+        .tab { flex: 1; padding: 10px 4px; border-radius: 12px; border: 2px solid #eee; background: #fff; cursor: pointer; font-size: 0.8rem; font-weight: bold; }
+        .tab.active { background: var(--primary-color); color: #fff; border-color: var(--primary-color); }
+
+        .math-wrapper { position: relative; width: fit-content; margin: 0 auto; padding: 10px 20px; }
+
+        .math-grid {
+            display: grid;
+            grid-template-columns: 40px 75px 75px 75px; 
+            grid-template-rows: 65px 80px 80px 10px 80px;
+            align-items: center; justify-items: center;
+            font-size: 3.5rem; color: #1e293b;
+        }
+
+        .aux {
+            font-size: 1.4rem; font-weight: bold; width: 45px; height: 40px;
+            border-radius: 8px; display: flex; justify-content: center; align-items: center;
+            visibility: hidden; opacity: 0; transition: 0.4s; z-index: 10;
+        }
+        .aux.visible { visibility: visible; opacity: 1; }
+        .aux-borrow { background: #fae8ff; color: var(--borrow-color); border: 2px solid #f5d0fe; }
+        .aux-carry { background: #fee2e2; color: var(--error-color); border: 2px solid #fca5a5; }
+
+        #arrow-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 100; opacity: 0; transition: opacity 0.3s;
+        }
+        .arrow-path {
+            fill: none; stroke: var(--borrow-color); stroke-width: 4;
+            stroke-linecap: round; stroke-dasharray: 400; stroke-dashoffset: 400;
+        }
+
+        .digit { position: relative; font-family: 'Verdana', sans-serif; font-weight: bold; min-width: 1em; text-align: center; }
+        .strike::after {
+            content: ""; position: absolute; width: 110%; height: 5px; background: var(--error-color);
+            top: 50%; left: -5%; transform: rotate(-45deg); display: none; border-radius: 2px;
+        }
+        .strike-active::after { display: block; }
+
+        .op { grid-column: 1; grid-row: 3; font-size: 2.5rem; color: #94a3b8; }
+        .line { grid-column: 1 / span 4; width: 100%; height: 6px; background: #334155; border-radius: 3px; grid-row: 4; }
+
+        #ans {
+            grid-column: 2 / span 3; grid-row: 5;
+            width: 220px; height: 75px; font-size: 3.5rem;
+            text-align: center; border: 4px solid #e2e8f0;
+            border-radius: 15px; outline: none; color: var(--primary-color);
+        }
+
+        .hint-box {
+            background: #fffbeb; padding: 12px; border-radius: 15px;
+            margin-top: 10px; font-size: 0.9rem; line-height: 1.4;
+            display: none; border-left: 5px solid var(--borrow-color);
+        }
+
+        .btns { display: flex; gap: 10px; margin-top: 15px; }
+        .btn { flex: 1; padding: 12px; border: none; border-radius: 15px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
+        .btn-h { background: #f1f5f9; color: #64748b; }
+
+        /* 撒花特效 */
+        .confetti {
+            position: fixed; width: 10px; height: 10px; z-index: 1000;
+            pointer-events: none; animation: fall linear forwards;
+        }
+        @keyframes fall {
+            to { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* 拍手特效 */
+        #clap-overlay {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 8rem; z-index: 2000; pointer-events: none;
+            display: none; animation: popClap 0.8s ease-out;
+        }
+        @keyframes popClap {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="clap-overlay">👏</div>
+
+<div id="app">
+    <div class="header">
+        <div class="star-box">⭐ <span id="stars">0</span></div>
+        <div style="color: #94a3b8; font-size: 0.8rem;">输入完按回车(Enter)</div>
+    </div>
+
+    <div class="level-tabs">
+        <button class="tab" id="tab1" onclick="go(1)">L1:基础</button>
+        <button class="tab" id="tab2" onclick="go(2)">L2:进位</button>
+        <button class="tab" id="tab3" onclick="go(3)">L3:退位</button>
+        <button class="tab active" id="tab4" onclick="go(4)">L4:三位数</button>
+    </div>
+
+    <div class="math-wrapper">
+        <svg id="arrow-layer" viewBox="0 0 300 400">
+            <defs>
+                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                    <polygon points="0 0, 10 3.5, 0 7" fill="#d946ef" />
+                </marker>
+            </defs>
+            <path id="arrow-h-t" class="arrow-path" d="M 100 45 Q 120 5, 145 40" marker-end="url(#arrowhead)" />
+            <path id="arrow-t-o" class="arrow-path" d="M 175 45 Q 195 5, 220 40" marker-end="url(#arrowhead)" />
+        </svg>
+
+        <div class="math-grid">
+            <div id="aux-h" class="aux" style="grid-column: 2; grid-row: 1;"></div>
+            <div id="aux-t" class="aux" style="grid-column: 3; grid-row: 1;"></div>
+            <div id="aux-o" class="aux" style="grid-column: 4; grid-row: 1;">+10</div>
+
+            <div id="n1-h" class="digit strike" style="grid-column: 2; grid-row: 2;"></div>
+            <div id="n1-t" class="digit strike" style="grid-column: 3; grid-row: 2;"></div>
+            <div id="n1-o" class="digit" style="grid-column: 4; grid-row: 2;"></div>
+
+            <div id="op" class="op">-</div>
+            <div id="n2-h" class="digit" style="grid-column: 2; grid-row: 3;"></div>
+            <div id="n2-t" class="digit" style="grid-column: 3; grid-row: 3;"></div>
+            <div id="n2-o" class="digit" style="grid-column: 4; grid-row: 3;"></div>
+
+            <div class="line"></div>
+            <input type="number" id="ans" placeholder="?" onkeydown="if(event.key==='Enter') check()">
+        </div>
+    </div>
+
+    <div id="hint" class="hint-box"></div>
+
+    <div class="btns">
+        <button class="btn btn-h" onclick="showHint()">💡 提示</button>
+    </div>
+</div>
+
+<script>
+    let level = 4;
+    let score = 0;
+    let q = { a: 0, b: 0, op: '', ans: 0 };
+
+    function go(lv) {
+        level = lv;
+        document.querySelectorAll('.tab').forEach((t, i) => {
+            t.classList.toggle('active', (i + 1) === lv);
+        });
+        reset();
+    }
+
+    function reset() {
+        const input = document.getElementById('ans');
+        input.value = '';
+        input.focus();
+        input.style.borderColor = "#e2e8f0";
+        document.getElementById('hint').style.display = 'none';
+        
+        ['n1-h', 'n1-t', 'n1-o'].forEach(id => document.getElementById(id).classList.remove('strike-active'));
+        ['aux-h', 'aux-t', 'aux-o'].forEach(id => {
+            document.getElementById(id).classList.remove('visible', 'aux-carry', 'aux-borrow');
+            document.getElementById(id).innerText = '';
+        });
+        document.getElementById('aux-o').innerText = "+10";
+
+        const arrowLayer = document.getElementById('arrow-layer');
+        arrowLayer.style.opacity = "0";
+        document.querySelectorAll('.arrow-path').forEach(p => {
+            p.style.transition = "none";
+            p.style.strokeDashoffset = "400";
+        });
+
+        generateMath();
+    }
+
+    function generateMath() {
+        let a, b, op;
+        if (level === 4) {
+            op = Math.random() > 0.5 ? '+' : '-';
+            if (op === '+') {
+                a = Math.floor(Math.random() * 500) + 100;
+                b = Math.floor(Math.random() * 400) + 50;
+            } else {
+                a = Math.floor(Math.random() * 700) + 200;
+                b = Math.floor(Math.random() * (a - 50)) + 50;
+                // 确保至少有一个数位借位
+                if ((a % 10 >= b % 10) && (Math.floor(a/10)%10 >= Math.floor(b/10)%10)) b += 9;
+            }
+        } else if (level === 3) {
+            op = '-'; a = Math.floor(Math.random() * 60) + 31; b = Math.floor(Math.random() * 25) + 6;
+            while(a % 10 >= b % 10) b++;
+        } else if (level === 2) {
+            op = '+'; a = Math.floor(Math.random() * 40) + 25; b = Math.floor(Math.random() * 30) + 15;
+            while(a % 10 + b % 10 < 10) b++;
+        } else {
+            op = '+'; a = Math.floor(Math.random() * 20) + 10; b = Math.floor(Math.random() * 8) + 1;
+            while(a % 10 + b % 10 >= 10) b--;
+        }
+        q = { a, b, op, ans: op === '+' ? a + b : a - b };
+        
+        renderDigit('n1', a);
+        renderDigit('n2', b);
+        document.getElementById('op').innerText = op;
+    }
+
+    function renderDigit(prefix, num) {
+        // 修复数字消失逻辑：
+        // 百位：只有大于等于100才显示
+        document.getElementById(`${prefix}-h`).innerText = num >= 100 ? Math.floor(num / 100) : '';
+        // 十位：只有大于等于10才显示
+        document.getElementById(`${prefix}-t`).innerText = num >= 10 ? Math.floor((num % 100) / 10) : '';
+        // 个位：永远显示
+        document.getElementById(`${prefix}-o`).innerText = num % 10;
+    }
+
+    function showHint() {
+        const h = document.getElementById('hint');
+        const { a, b, op } = q;
+        let text = "<b>提示：</b>";
+        const arrowLayer = document.getElementById('arrow-layer');
+        
+        if (op === '+') {
+            text += "从个位加起，满10进1。";
+            if ((a % 10 + b % 10) >= 10) {
+                const auxT = document.getElementById('aux-t');
+                auxT.innerText = "1"; auxT.className = "aux aux-carry visible";
+            }
+            // 十位进位检查
+            let carryToH = (Math.floor(a/10)%10 + Math.floor(b/10)%10 + ((a%10+b%10)>=10?1:0)) >= 10;
+            if (carryToH) {
+                const auxH = document.getElementById('aux-h');
+                auxH.innerText = "1"; auxH.className = "aux aux-carry visible";
+            }
+        } else {
+            let nTO = false, nHT = false;
+            // 个位向十位借
+            if (a % 10 < b % 10) {
+                text += "个位不够减，向十位借1。<br>";
+                document.getElementById('n1-t').classList.add('strike-active');
+                const auxT = document.getElementById('aux-t');
+                auxT.innerText = (Math.floor(a/10)%10 - 1 + 10) % 10;
+                auxT.className = "aux aux-borrow visible";
+                document.getElementById('aux-o').className = "aux aux-borrow visible";
+                nTO = true;
+            }
+            // 十位向百位借
+            let tDigit = Math.floor(a/10)%10;
+            if (tDigit < Math.floor(b/10)%10 || (a%10 < b%10 && tDigit === 0)) {
+                text += "十位不够减，向百位借1。";
+                document.getElementById('n1-h').classList.add('strike-active');
+                const auxH = document.getElementById('aux-h');
+                auxH.innerText = Math.floor(a/100) - 1;
+                auxH.className = "aux aux-borrow visible";
+                if(!nTO) {
+                    const auxT = document.getElementById('aux-t');
+                    auxT.innerText = (tDigit + 10);
+                    auxT.className = "aux aux-borrow visible";
+                }
+                nHT = true;
+            }
+            if (nTO || nHT) {
+                arrowLayer.style.opacity = "1";
+                if(nTO) animateArrow('arrow-t-o');
+                if(nHT) animateArrow('arrow-h-t');
+            }
+        }
+        h.innerHTML = text;
+        h.style.display = 'block';
+    }
+
+    function animateArrow(id) {
+        const p = document.getElementById(id);
+        setTimeout(() => { p.style.transition = "stroke-dashoffset 0.8s ease-in-out"; p.style.strokeDashoffset = "0"; }, 50);
+    }
+
+    function check() {
+        const input = document.getElementById('ans');
+        const val = parseInt(input.value);
+        if (val === q.ans) {
+            score++;
+            document.getElementById('stars').innerText = score;
+            celebrate();
+            setTimeout(reset, 1500);
+        } else {
+            input.style.borderColor = "#ef4444";
+            setTimeout(() => input.style.borderColor = '#e2e8f0', 500);
+        }
+    }
+
+    function celebrate() {
+        const clap = document.getElementById('clap-overlay');
+        clap.style.display = 'block';
+        setTimeout(() => clap.style.display = 'none', 800);
+
+        const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
+        for (let i = 0; i < 60; i++) {
+            const c = document.createElement('div');
+            c.className = 'confetti';
+            c.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            c.style.left = Math.random() * 100 + 'vw';
+            c.style.top = '-10px';
+            const duration = Math.random() * 2 + 1;
+            c.style.animationDuration = duration + 's';
+            c.style.width = (Math.random() * 8 + 6) + 'px';
+            c.style.height = c.style.width;
+            document.body.appendChild(c);
+            setTimeout(() => c.remove(), duration * 1000);
+        }
+    }
+
+    // 初始化
+    go(4);
+</script>
+
+</body>
+</html>
