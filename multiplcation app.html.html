@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>镭射战机 - 乘法大作战</title>
+    <style>
+        body {
+            margin: 0; background: #050505; color: white;
+            font-family: 'Segoe UI', Arial, sans-serif; overflow: hidden;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh;
+        }
+        #game-container {
+            position: relative; width: 450px; height: 650px;
+            border: 4px solid #00f2ff; border-radius: 20px; overflow: hidden;
+            background: #000; box-shadow: 0 0 20px rgba(0, 242, 255, 0.3);
+        }
+        canvas { display: block; }
+        #ui-panel {
+            position: absolute; bottom: 0; width: 100%; height: 100px;
+            background: rgba(0, 10, 20, 0.9); border-top: 2px solid #00f2ff;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        #question { font-size: 42px; color: #fff; font-weight: bold; text-shadow: 0 0 15px #00f2ff; }
+        #score-display { 
+            position: absolute; top: 20px; left: 20px; font-size: 28px; 
+            color: #00f2ff; font-weight: bold; text-shadow: 0 0 10px #00f2ff;
+        }
+        #overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); display: flex; flex-direction: column;
+            align-items: center; justify-content: center; z-index: 100; text-align: center;
+        }
+        button {
+            padding: 15px 50px; font-size: 24px; background: #00f2ff; border: none;
+            border-radius: 5px; cursor: pointer; font-weight: bold; color: #000; transition: 0.3s;
+        }
+        button:hover { transform: scale(1.1); box-shadow: 0 0 30px #00f2ff; }
+        .info { color: #888; margin-bottom: 20px; line-height: 1.6; }
+        h1 { color: #00f2ff; text-shadow: 0 0 10px #00f2ff; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <div id="score-display">能量: 30</div>
+        <canvas id="gameCanvas" width="450" height="550"></canvas>
+        
+        <div id="ui-panel">
+            <div id="question">准备射击</div>
+        </div>
+
+        <div id="overlay">
+            <h1 id="status-title">镭射拦截者</h1>
+            <div class="info">
+                [鼠标移动] 切换轨道<br>
+                [点击左键] 发射镭射<br><br>
+                <span style="color:#00ff88">命中正确: +5</span><br>
+                <span style="color:#ff4444">命中错误: -5</span><br>
+                <span style="color:#ffaa00">漏掉答案: -10</span><br><br>
+                能量归零时飞机会爆炸！
+            </div>
+            <button onclick="startGame()">启动战机</button>
+        </div>
+    </div>
+
+<script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const questionEl = document.getElementById('question');
+    const scoreEl = document.getElementById('score-display');
+    const overlay = document.getElementById('overlay');
+    const statusTitle = document.getElementById('status-title');
+
+    let score = 30;
+    let gameActive = false;
+    let currentQuestion = { a: 0, b: 0, answer: 0 };
+    let targets = [];
+    let lasers = [];
+    let particles = [];
+    let player = { lane: 1, x: 225, y: 480, alive: true, shake: 0 };
+    const lanes = [75, 225, 375];
+
+    // 音效
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playSound(f, t, d, v=0.1) {
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.type = t; o.frequency.setValueAtTime(f, audioCtx.currentTime);
+        g.gain.setValueAtTime(v, audioCtx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + d);
+        o.connect(g); g.connect(audioCtx.destination);
+        o.start(); o.stop(audioCtx.currentTime + d);
+    }
+
+    // 交互
+    canvas.addEventListener('mousemove', (e) => {
+        if (!gameActive) return;
+        const rect = canvas.getBoundingClientRect();
+        const mx = e.clientX - rect.left;
+        player.lane = mx < 150 ? 0 : (mx < 300 ? 1 : 2);
+    });
+
+    canvas.addEventListener('mousedown', () => { if(gameActive && player.alive) fireLaser(); });
+
+    function fireLaser() {
+        lasers.push({ x: lanes[player.lane], y: player.y - 20, life: 1.0 });
+        playSound(800, 'triangle', 0.1, 0.05);
+        player.shake = 5; // 射击后坐力
+    }
+
+    function createExplosion(x, y, color, count=20) {
+        for (let i = 0; i < count; i++) {
+            particles.push({
+                x, y,
+                vx: (Math.random() - 0.5) * 12,
+                vy: (Math.random() - 0.5) * 12,
+                life: 1.0,
+                color: color,
+                size: Math.random() * 4 + 2
+            });
+        }
+    }
+
+    function generateQuestion() {
+        const a = Math.floor(Math.random() * 9) + 1;
+        const b = Math.floor(Math.random() * 9) + 1;
+        currentQuestion = { a, b, answer: a * b };
+        questionEl.innerText = `${a} × ${b}`;
+        
+        targets = [];
+        let answers = [currentQuestion.answer];
+        while (answers.length < 3) {
+            let wrong = (Math.floor(Math.random() * 9) + 1) * (Math.floor(Math.random() * 9) + 1);
+            if (!answers.includes(wrong)) answers.push(wrong);
+        }
+        answers.sort(() => Math.random() - 0.5);
+
+        for (let i = 0; i < 3; i++) {
+            targets.push({
+                lane: i, x: lanes[i], y: -50,
+                value: answers[i],
+                isCorrect: answers[i] === currentQuestion.answer,
+                speed: 1.5 + (score > 100 ? 1 : 0)
+            });
+        }
+    }
+
+    function update() {
+        if (!gameActive) return;
+
+        // 飞机平滑移动
+        player.x += (lanes[player.lane] - player.x) * 0.25;
+        if (player.shake > 0) player.shake *= 0.8;
+
+        // 镭射更新 (更像镭射脉冲)
+        lasers.forEach((l, i) => {
+            l.y -= 15;
+            if (l.y < -50) lasers.splice(i, 1);
+        });
+
+        // 目标更新
+        let nextLevel = false;
+        targets.forEach((t, ti) => {
+            t.y += t.speed;
+
+            // 镭射碰撞
+            lasers.forEach((l, li) => {
+                const dist = Math.hypot(l.x - t.x, l.y - t.y);
+                if (dist < 35) {
+                    lasers.splice(li, 1);
+                    if (t.isCorrect) {
+                        score += 5;
+                        playSound(1000, 'sine', 0.2);
+                        createExplosion(t.x, t.y, '#00f2ff');
+                        nextLevel = true;
+                    } else {
+                        score -= 5;
+                        playSound(100, 'square', 0.2);
+                        createExplosion(t.x, t.y, '#ff0055');
+                        targets.splice(ti, 1);
+                    }
+                }
+            });
+
+            // 掉到底部
+            if (t.y > canvas.height + 40) {
+                if (t.isCorrect) {
+                    score -= 10; // 漏掉正确答案扣10分
+                    playSound(50, 'sawtooth', 0.4);
+                }
+                nextLevel = true;
+            }
+        });
+
+        if (nextLevel) generateQuestion();
+
+        // 粒子更新
+        particles.forEach((p, i) => {
+            p.x += p.vx; p.y += p.vy; p.life -= 0.02;
+            if (p.life <= 0) particles.splice(i, 1);
+        });
+
+        scoreEl.innerText = `能量: ${score}`;
+        if (score <= 0 && player.alive) gameOver();
+    }
+
+    function gameOver() {
+        player.alive = false;
+        gameActive = false;
+        playSound(60, 'sawtooth', 1.0, 0.3);
+        createExplosion(player.x, player.y, '#ffaa00', 100); // 飞机大爆炸
+        setTimeout(() => {
+            statusTitle.innerText = "战机毁坏！";
+            statusTitle.style.color = "#ff4444";
+            overlay.style.display = 'flex';
+        }, 1500);
+    }
+
+    function drawLaser(l) {
+        ctx.save();
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = '#00f2ff';
+        const grad = ctx.createLinearGradient(l.x, l.y, l.x, l.y + 30);
+        grad.addColorStop(0, '#fff');
+        grad.addColorStop(1, '#00f2ff');
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = 4;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(l.x, l.y);
+        ctx.lineTo(l.x, l.y + 30);
+        ctx.stroke();
+        ctx.restore();
+    }
+
+    function draw() {
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // 星空背景感
+        ctx.fillStyle = '#111';
+        for(let i=0; i<20; i++) ctx.fillRect((i*77)%canvas.width, (Date.now()/20 + i*50)%canvas.height, 2, 2);
+
+        // 画镭射
+        lasers.forEach(l => drawLaser(l));
+
+        // 画目标
+        targets.forEach(t => {
+            ctx.save();
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = '#00f2ff';
+            ctx.strokeStyle = '#00f2ff';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(t.x-30, t.y-25, 60, 50);
+            
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 28px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(t.value, t.x, t.y + 10);
+            ctx.restore();
+        });
+
+        // 画粒子
+        particles.forEach(p => {
+            ctx.globalAlpha = p.life;
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+            ctx.fill();
+        });
+        ctx.globalAlpha = 1;
+
+        // 画飞机 (镭射战机造型)
+        if (player.alive) {
+            ctx.save();
+            const shakeX = (Math.random()-0.5) * player.shake;
+            ctx.translate(player.x + shakeX, player.y);
+            
+            // 翼展
+            ctx.fillStyle = '#00f2ff';
+            ctx.beginPath();
+            ctx.moveTo(-35, 10); ctx.lineTo(0, -30); ctx.lineTo(35, 10);
+            ctx.lineTo(0, 5); ctx.closePath(); ctx.fill();
+            
+            // 核心舱
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.arc(0, 0, 8, 0, Math.PI*2); ctx.fill();
+
+            // 喷气
+            ctx.fillStyle = '#ffaa00';
+            ctx.fillRect(-5, 15, 10, 10 + Math.random()*15);
+            ctx.restore();
+        }
+    }
+
+    function gameLoop() {
+        update();
+        draw();
+        requestAnimationFrame(gameLoop);
+    }
+
+    function startGame() {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        score = 30;
+        player.alive = true;
+        player.x = 225;
+        targets = []; lasers = []; particles = [];
+        overlay.style.display = 'none';
+        gameActive = true;
+        generateQuestion();
+    }
+
+    gameLoop();
+</script>
+</body>
+</html>
