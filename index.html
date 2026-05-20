@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#f8fafc">
+    <meta name="theme-color" content="#fff7d6">
     <title>忠毅学习空间</title>
     <link rel="stylesheet" href="styles.css">
   </head>
@@ -14,7 +14,7 @@
           <span class="brand-mark">忠</span>
           <span>
             <strong>忠毅学习空间</strong>
-            <small>选择一个学习 app 开始</small>
+            <small>忠毅的小小练习站</small>
           </span>
         </a>
         <button class="icon-button" id="clearRecentButton" type="button" title="清除最近打开">
@@ -26,12 +26,17 @@
       <main>
         <section class="hero" aria-labelledby="pageTitle">
           <div>
-            <p class="eyebrow">8 岁学习入口</p>
-            <h1 id="pageTitle">今天想练哪一个？</h1>
+            <p class="eyebrow">8 岁学习乐园</p>
+            <h1 id="pageTitle">今天要闯哪一关？</h1>
+          </div>
+          <div class="hero-art" aria-hidden="true">
+            <span class="toy-card toy-card-one">×</span>
+            <span class="toy-card toy-card-two">ABC</span>
+            <span class="toy-card toy-card-three">★</span>
           </div>
           <div class="hero-panel" aria-live="polite">
             <span id="appCount">0</span>
-            <small>个学习 app</small>
+            <small>个小关卡</small>
           </div>
         </section>
 
@@ -41,33 +46,33 @@
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="m21 21-4.35-4.35m2.35-5.65a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z"></path>
             </svg>
-            <input id="searchInput" type="search" placeholder="搜索名称、科目或说明">
+            <input id="searchInput" type="search" placeholder="找一个想玩的练习">
           </label>
           <div class="chips" id="subjectChips" role="list" aria-label="科目"></div>
         </section>
 
         <section class="section" id="favoritesSection" hidden>
           <div class="section-heading">
-            <h2>常用</h2>
+            <h2>最爱玩的</h2>
           </div>
           <div class="grid" id="favoritesGrid"></div>
         </section>
 
         <section class="section" id="recentSection" hidden>
           <div class="section-heading">
-            <h2>最近打开</h2>
+            <h2>最近玩过</h2>
           </div>
           <div class="grid compact" id="recentGrid"></div>
         </section>
 
         <section class="section">
           <div class="section-heading">
-            <h2>全部学习 app</h2>
+            <h2>全部关卡</h2>
             <span id="resultCount"></span>
           </div>
           <div class="grid" id="appsGrid"></div>
           <div class="empty" id="emptyState" hidden>
-            <strong>没有找到符合条件的 app</strong>
+            <strong>没有找到这个关卡</strong>
             <span>换个关键词，或选择“全部”。</span>
           </div>
         </section>
