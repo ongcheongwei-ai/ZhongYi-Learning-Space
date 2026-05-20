@@ -5,7 +5,7 @@
     "subject": "数学",
     "age": "8岁",
     "description": "用射击游戏练习乘法，命中正确答案得分。",
-    "url": "/apps/multiplication-shooter/",
+    "url": "apps/multiplication-shooter/",
     "accent": "#06b6d4",
     "favorite": true,
     "updatedAt": "2026-05-20"
@@ -16,7 +16,7 @@
     "subject": "数学",
     "age": "8岁",
     "description": "快速练习乘法，适合每天 5 分钟热身。",
-    "url": "/apps/sample-math/",
+    "url": "apps/sample-math/",
     "accent": "#2563eb",
     "favorite": true,
     "updatedAt": "2026-05-20"
@@ -27,7 +27,7 @@
     "subject": "数学",
     "age": "8岁",
     "description": "用星球冒险游戏练习乘法。",
-    "url": "/apps/multiplication-planet/",
+    "url": "apps/multiplication-planet/",
     "accent": "#6b4bd8",
     "favorite": true,
     "updatedAt": "2026-05-20"
@@ -38,7 +38,7 @@
     "subject": "数学",
     "age": "8岁",
     "description": "练习加法、减法、进位和借位的竖式题。",
-    "url": "/apps/addition-subtraction/",
+    "url": "apps/addition-subtraction/",
     "accent": "#f59e0b",
     "favorite": true,
     "updatedAt": "2026-05-20"
@@ -49,7 +49,7 @@
     "subject": "英文 / 马来文",
     "age": "8岁",
     "description": "Mario 风格的 English / Bahasa Melayu 听写练习。",
-    "url": "/apps/spelling-ejaan/",
+    "url": "apps/spelling-ejaan/",
     "accent": "#2196F3",
     "favorite": true,
     "updatedAt": "2026-05-20"
@@ -60,7 +60,7 @@
     "subject": "英文 / 马来文",
     "age": "8岁",
     "description": "Mario 风格的 spelling / ejaan 拼写练习。",
-    "url": "/apps/mario-spelling-lab/",
+    "url": "apps/mario-spelling-lab/",
     "accent": "#e4000f",
     "favorite": true,
     "updatedAt": "2026-05-20"

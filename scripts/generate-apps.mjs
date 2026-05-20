@@ -15,14 +15,14 @@ for (const entry of await safeReadDir(appsDir)) {
     const htmlPath = path.join(appsDir, folder, "index.html");
     const html = await safeReadFile(htmlPath);
     if (!html) continue;
-    apps.push(appFromHtml({ id: folder, html, url: `/apps/${folder}/`, fallbackTitle: folder }));
+    apps.push(appFromHtml({ id: folder, html, url: `apps/${folder}/`, fallbackTitle: folder }));
   }
 
   if (entry.isFile() && entry.name.endsWith(".html") && entry.name !== "index.html") {
     const html = await safeReadFile(path.join(appsDir, entry.name));
     if (!html) continue;
     const id = entry.name.replace(/\.html$/i, "");
-    apps.push(appFromHtml({ id, html, url: `/apps/${entry.name}`, fallbackTitle: id }));
+    apps.push(appFromHtml({ id, html, url: `apps/${entry.name}`, fallbackTitle: id }));
   }
 }
 

@@ -24,7 +24,7 @@ init();
 
 async function init() {
   try {
-    const response = await fetch(`/apps.json?ts=${Date.now()}`);
+    const response = await fetch(`apps.json?ts=${Date.now()}`);
     if (!response.ok) throw new Error("Cannot load apps.json");
     const apps = await response.json();
     state.apps = apps.map(normalizeApp).sort(sortApps);
