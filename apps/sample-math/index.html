@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="zh-Hans">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>乘法小练习</title>
+    <meta name="learning-subject" content="数学">
+    <meta name="learning-age" content="8岁">
+    <meta name="learning-description" content="快速练习乘法，适合每天 5 分钟热身。">
+    <meta name="learning-accent" content="#2563eb">
+    <meta name="learning-favorite" content="true">
+    <style>
+      :root {
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+        color: #172033;
+        background: #f8fafc;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        display: grid;
+        min-height: 100vh;
+        margin: 0;
+        place-items: center;
+        padding: 22px;
+        background: linear-gradient(135deg, rgba(37, 99, 235, 0.14), transparent 34rem), #f8fafc;
+      }
+
+      main {
+        width: min(560px, 100%);
+        padding: 24px;
+        border: 1px solid #d8e0ea;
+        border-radius: 8px;
+        background: white;
+        box-shadow: 0 18px 45px rgba(42, 52, 71, 0.12);
+      }
+
+      a {
+        color: #2563eb;
+      }
+
+      h1 {
+        margin: 0 0 12px;
+      }
+
+      .problem {
+        margin: 24px 0;
+        font-size: 3rem;
+        font-weight: 850;
+        text-align: center;
+      }
+
+      .row {
+        display: flex;
+        gap: 10px;
+      }
+
+      input,
+      button {
+        min-height: 48px;
+        border-radius: 8px;
+        font: inherit;
+      }
+
+      input {
+        width: 100%;
+        border: 1px solid #cbd5e1;
+        padding: 0 14px;
+        font-size: 1.15rem;
+      }
+
+      button {
+        border: 0;
+        padding: 0 18px;
+        color: white;
+        background: #2563eb;
+        cursor: pointer;
+        font-weight: 750;
+      }
+
+      .status {
+        min-height: 32px;
+        margin-top: 16px;
+        color: #667085;
+        font-weight: 700;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <a href="/">← 回到学习空间</a>
+      <h1>乘法小练习</h1>
+      <p>输入答案后按检查。</p>
+      <div class="problem" id="problem"></div>
+      <div class="row">
+        <input id="answer" inputmode="numeric" autocomplete="off" aria-label="答案">
+        <button id="checkButton" type="button">检查</button>
+      </div>
+      <div class="status" id="status"></div>
+    </main>
+
+    <script>
+      const problem = document.querySelector("#problem");
+      const answer = document.querySelector("#answer");
+      const checkButton = document.querySelector("#checkButton");
+      const status = document.querySelector("#status");
+      let a = 0;
+      let b = 0;
+
+      next();
+
+      checkButton.addEventListener("click", check);
+      answer.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") check();
+      });
+
+      function next() {
+        a = random(2, 9);
+        b = random(2, 9);
+        problem.textContent = `${a} × ${b} = ?`;
+        answer.value = "";
+        answer.focus();
+      }
+
+      function check() {
+        if (Number(answer.value) === a * b) {
+          status.textContent = "答对了，下一题。";
+          setTimeout(() => {
+            status.textContent = "";
+            next();
+          }, 650);
+        } else {
+          status.textContent = "再想一想。";
+          answer.select();
+        }
+      }
+
+      function random(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+      }
+    </script>
+  </body>
+</html>
