@@ -8,7 +8,7 @@
     "url": "apps/multiplication-shooter/",
     "accent": "#06b6d4",
     "favorite": true,
-    "updatedAt": "2026-05-20"
+    "updatedAt": "2026-06-15"
   },
   {
     "id": "sample-math",
@@ -19,7 +19,7 @@
     "url": "apps/sample-math/",
     "accent": "#2563eb",
     "favorite": true,
-    "updatedAt": "2026-05-20"
+    "updatedAt": "2026-06-15"
   },
   {
     "id": "multiplication-planet",
@@ -30,7 +30,7 @@
     "url": "apps/multiplication-planet/",
     "accent": "#6b4bd8",
     "favorite": true,
-    "updatedAt": "2026-05-20"
+    "updatedAt": "2026-06-15"
   },
   {
     "id": "addition-subtraction",
@@ -41,7 +41,7 @@
     "url": "apps/addition-subtraction/",
     "accent": "#f59e0b",
     "favorite": true,
-    "updatedAt": "2026-05-20"
+    "updatedAt": "2026-06-15"
   },
   {
     "id": "spelling-ejaan",
@@ -52,7 +52,7 @@
     "url": "apps/spelling-ejaan/",
     "accent": "#2196F3",
     "favorite": true,
-    "updatedAt": "2026-05-20"
+    "updatedAt": "2026-06-15"
   },
   {
     "id": "mario-spelling-lab",
@@ -63,6 +63,17 @@
     "url": "apps/mario-spelling-lab/",
     "accent": "#e4000f",
     "favorite": true,
-    "updatedAt": "2026-05-20"
+    "updatedAt": "2026-06-15"
+  },
+  {
+    "id": "year2-english-exam-quest-unit5-6",
+    "title": "Year 2 English Exam Quest: Unit 5–6",
+    "subject": "英文",
+    "age": "8岁",
+    "description": "Unit 5 Free Time 与 Unit 6 The Old House 的英文考试复习游戏。",
+    "url": "apps/year2-english-exam-quest-unit5-6/",
+    "accent": "#ff8a00",
+    "favorite": true,
+    "updatedAt": "2026-06-15"
   }
 ]

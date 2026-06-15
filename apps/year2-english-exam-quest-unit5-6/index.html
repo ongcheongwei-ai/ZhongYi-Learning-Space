@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Year 2 English Exam Quest: Unit 5–6</title>
+<meta name="learning-subject" content="英文">
+<meta name="learning-age" content="8岁">
+<meta name="learning-description" content="Unit 5 Free Time 与 Unit 6 The Old House 的英文考试复习游戏。">
+<meta name="learning-accent" content="#ff8a00">
+<meta name="learning-favorite" content="true">
+<style>
+:root{
+  --bg:#fff7df;--card:#ffffff;--ink:#2b2b2b;--muted:#6b7280;--accent:#ff8a00;--accent2:#2bb3a3;--bad:#ef4444;--good:#22c55e;--blue:#3b82f6;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Arial,"Noto Sans SC",sans-serif;background:linear-gradient(180deg,#fff8e8,#e9fff9);color:var(--ink)}
+header{position:sticky;top:0;z-index:5;background:#fffdf7cc;backdrop-filter:blur(8px);border-bottom:2px solid #ffe1a8;padding:10px 14px}
+h1{font-size:20px;margin:0 0 8px;display:flex;align-items:center;gap:8px}
+.wrap{max-width:980px;margin:0 auto;padding:14px}
+.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.pill{background:white;border:2px solid #ffd28a;border-radius:18px;padding:8px;text-align:center;font-weight:700}
+.progress{height:14px;background:#ffe4b5;border-radius:999px;overflow:hidden;border:1px solid #ffc76b}
+.bar{height:100%;width:0;background:linear-gradient(90deg,var(--accent),#ffc107);transition:.3s}
+.tabs{display:flex;gap:8px;overflow-x:auto;overflow-y:hidden;padding:12px 0;scroll-snap-type:x proximity}
+.tab{border:0;border-radius:14px;padding:10px 14px;background:#fff;border:2px solid #ddd;font-weight:800;white-space:nowrap;scroll-snap-align:start}
+.tab.active{background:#1f2937;color:white;border-color:#1f2937}
+.card{background:var(--card);border:2px solid #ffe0a6;border-radius:22px;padding:16px;margin:12px 0;box-shadow:0 6px 0 #f7c66b}
+.big{font-size:26px;font-weight:900}
+.sub{color:var(--muted);font-size:14px}
+.grid{display:grid;gap:10px}
+.grid2{grid-template-columns:repeat(auto-fit,minmax(145px,1fr))}
+.btn{border:0;border-radius:16px;padding:14px 12px;background:#f3f4f6;border:2px solid #ddd;font-weight:800;font-size:16px;min-height:54px}
+.btn:hover,.drop:hover{transform:translateY(-1px)}
+.btn.good{background:#dcfce7;border-color:#22c55e}
+.btn.bad{background:#fee2e2;border-color:#ef4444}
+.primary{background:#ffedd5;border-color:#fb923c}
+.success{background:#dcfce7;border-color:#22c55e}
+.drop{min-height:52px;border:3px dashed #bbb;border-radius:16px;background:#fafafa;padding:12px;display:flex;align-items:center;justify-content:center;font-weight:900}
+.drop.filled{border-style:solid;background:#e0f2fe}
+.words{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.word{padding:10px 14px;background:#e0f2fe;border:2px solid #38bdf8;border-radius:14px;font-weight:900;cursor:grab}
+.scene{font-size:48px;text-align:center;line-height:1.2;margin:10px 0}
+.badge{display:inline-block;border-radius:999px;background:#fde68a;padding:5px 10px;margin:2px;font-weight:800}
+input[type=text]{width:100%;font-size:20px;padding:12px;border-radius:14px;border:2px solid #ddd}
+.feedback{min-height:28px;font-weight:900;margin-top:10px}
+.smallbtn{padding:9px 12px;border-radius:12px;border:2px solid #ddd;background:white;font-weight:800}
+footer{height:40px}
+.dragging{opacity:.5}
+@media (max-width:520px){.stats{grid-template-columns:1fr}.big{font-size:22px}.scene{font-size:42px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>🎮 Year 2 English Exam Quest <span class="sub">Unit 5 Free Time + Unit 6 The Old House</span></h1>
+  <div class="stats">
+    <div class="pill">⭐ Score: <span id="score">0</span></div>
+    <div class="pill">🔥 Streak: <span id="streak">0</span></div>
+    <div class="pill"><div class="progress"><div class="bar" id="bar"></div></div></div>
+  </div>
+</header>
+<div class="wrap">
+  <div class="tabs" id="tabs"></div>
+  <main id="app"></main>
+  <div class="card">
+    <b>家长使用方法：</b>每天玩 10–15 分钟。先玩 Vocabulary 和 Days，再玩 Reading/Grammar，最后玩 Sentence Builder。答错时请孩子大声读一次正确句子。
+  </div>
+</div>
+<footer></footer>
+<script>
+const $=s=>document.querySelector(s);
+let score=0, streak=0, done=0, total=0, current='days';
+function upd(ok){
+  if(ok){score+=10+Math.min(streak,5)*2; streak++; done++} else {streak=0}
+  $('#score').textContent=score; $('#streak').textContent=streak;
+  $('#bar').style.width=Math.min(100,Math.round(done/Math.max(total,1)*100))+'%';
+}
+const bank={
+days:['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'],
+free:[
+ ['play computer games','💻'],['play the piano','🎹'],['ride my horse','🐎'],['play football','⚽'],['play tennis','🎾'],['sing','🎤'],['read a book','📖'],['ride a bike','🚲'],['watch TV','📺'],['swim','🏊'],['do homework','✏️'],['eat healthy food','🥗'],['play toys','🧸'],['play badminton','🏸'],['play the guitar','🎸'],['fly a kite','🪁']
+],
+house:[
+ ['kitchen','🍳'],['stairs','🪜'],['living room','🛋️'],['bedroom','🛏️'],['cellar','🕳️'],['garden','🌳'],['bathroom','🛁'],['sofa','🛋️'],['sink','🚰'],['pillow','🛏️'],['bathtub','🛁'],['refrigerator','🧊'],['rug','▭'],['mirror','🪞'],['bed','🛏️'],['TV','📺'],['towels','🧺']
+],
+phonicsU:['jump','mud','cup','bus','duck','Mum'],
+phonicsH:['help','house','hat','hall','hot'],
+habitat:[
+ ['desert','🏜️','hot and sunny; camels live here; sand is here'],
+ ['jungle','🌴','many trees and animals'],
+ ['polar region','❄️','cold; snow; polar bears and penguins'],
+ ['ocean','🌊','water everywhere'],
+ ['mountain','⛰️','grey and green; goats live here']
+]
+};
+const games=[
+{id:'days',name:'🚂 Days Train',render:daysGame},
+{id:'vocab',name:'🧩 Vocabulary',render:vocabGame},
+{id:'grammar',name:'🏠 There is / are',render:grammarGame},
+{id:'reading',name:'📖 Reading MCQ',render:readingGame},
+{id:'sentence',name:'✍️ Sentence Builder',render:sentenceGame},
+{id:'phonics',name:'🔊 Phonics',render:phonicsGame},
+{id:'spelling',name:'🔤 Spelling',render:spellingGame}
+];
+function setGame(id){current=id; renderTabs(); games.find(g=>g.id==id).render();}
+function renderTabs(){ $('#tabs').innerHTML=games.map(g=>`<button class="tab ${g.id==current?'active':''}" onclick="setGame('${g.id}')">${g.name}</button>`).join('');}
+function say(msg){ if('speechSynthesis'in window){ let u=new SpeechSynthesisUtterance(msg); u.lang='en-US'; speechSynthesis.speak(u);} }
+function choiceCard(title,question,options,ans,emoji=''){
+ total++;
+ $('#app').innerHTML=`<div class="card"><div class="sub">${title}</div><div class="scene">${emoji}</div><div class="big">${question}</div><div class="grid grid2" id="opts"></div><div class="feedback" id="fb"></div><button class="smallbtn" onclick="document.querySelector('#fb').textContent='Answer: ${ans}'">Show Answer 👀</button> <button class="smallbtn" onclick="games.find(g=>g.id==current).render()">Next ▶</button></div>`;
+ $('#opts').innerHTML=options.map(o=>`<button class="btn" onclick="checkChoice(this,'${o.replaceAll("'","\\'")}','${ans.replaceAll("'","\\'")}')">${o}</button>`).join('');
+}
+function checkChoice(btn,o,a){
+ if(btn.closest('.card').dataset.answered==='1') return;
+ btn.closest('.card').dataset.answered='1';
+ let ok=o===a;
+ btn.classList.add(ok?'good':'bad');
+ [...document.querySelectorAll('#opts .btn')].forEach(b=>{ if(b.textContent===a) b.classList.add('good'); b.disabled=true; });
+ $('#fb').textContent=ok?'✅ Correct! '+a:'❌ Try again. Answer: '+a;
+ say(a); upd(ok);
+}
+function daysGame(){
+ const d=bank.days, i=Math.floor(Math.random()*7);
+ let types=[
+  [`What day comes after ${d[i]}?`, d[(i+1)%7]],
+  [`What day comes before ${d[i]}?`, d[(i+6)%7]],
+  [`Today is ${d[i]}. Tomorrow will be _____.`, d[(i+1)%7]]
+ ];
+ let [q,a]=types[Math.floor(Math.random()*types.length)];
+ choiceCard('考试题型：Fill in the blank / MCQ',q,d,a,'🚂');
+}
+function vocabGame(){
+ let all=[...bank.free,...bank.house,...bank.habitat.map(x=>[x[0],x[1]])]; let item=pick(all);
+ let opts=shuffle(all.map(x=>x[0])).slice(0,4); if(!opts.includes(item[0])) opts[0]=item[0];
+ choiceCard('考试题型：Vocabulary / Labelling','What is this?',shuffle(opts),item[0],item[1]);
+}
+function grammarGame(){
+ let items=[['one crocodile','There is'],['four pencils','There are'],['a pillow','There is'],['two goats','There are'],['seven apples','There are'],['a sofa','There is'],['three butterflies','There are'],['a lizard','There is']];
+ let [thing,a]=pick(items);
+ choiceCard('考试题型：There is / There are',`_____ ${thing}.`,['There is','There are','These are','This is'],a,'🏠');
+}
+function readingGame(){
+ let qs=[
+ ['James plays basketball on Sundays, Mondays and Thursdays. James does not play basketball on _____.',['Mondays','Thursdays','Saturdays'],'Saturdays','🏀'],
+ ['Rick watches TV for 3–4 hours. Rick plays with friends for 1–2 hours. Which activity takes 1–2 hours?',['watch TV','play with friends','read books'],'play with friends','📊'],
+ ['A: The polar regions are white and blue. You can find snow and polar bears there. Where can you find polar bears?',['desert','polar region','mountain'],'polar region','❄️'],
+ ['A room where you cook is the _____.',['kitchen','bedroom','cellar'],'kitchen','🍳'],
+ ['Saturday and Sunday are the _____.',['weekends','weekdays','months'],'weekends','📅'],
+ ['The deserts are hot and sunny. Camels live there. Camels live in the _____.',['desert','ocean','jungle'],'desert','🐪']
+ ];
+ let q=pick(qs); choiceCard('考试题型：Comprehension / MCQ',q[0],q[1],q[2],q[3]);
+}
+function sentenceGame(){
+ let acts=['play football','read a book','sing','play the guitar','ride a bike','fly a kite','play toys','swim'];
+ let day=pick(bank.days), act=pick(acts);
+ let correct=`I ${act} on ${day}.`;
+ let words=shuffle(correct.replace('.','').split(' '));
+ total++;
+ $('#app').innerHTML=`<div class="card"><div class="sub">考试题型：Rearrange words / Text completion</div><div class="big">Arrange the words:</div><div class="words" id="pool">${words.map(w=>`<button class="word" onclick="addWord(this)">${w}</button>`).join('')}</div><div class="drop" id="sentence"></div><div class="feedback" id="fb"></div><button class="smallbtn" onclick="checkSentence('${correct.replaceAll("'","\\'")}')">Check ✅</button> <button class="smallbtn" onclick="sentenceGame()">Next ▶</button></div>`;
+}
+let selected=[];
+function addWord(b){selected.push(b.textContent); b.disabled=true; b.style.opacity=.35; $('#sentence').textContent=selected.join(' ') + (selected.length?'.':'');}
+function checkSentence(ans){
+ if(document.querySelector('.card').dataset.answered==='1') return;
+ document.querySelector('.card').dataset.answered='1';
+ let got=selected.join(' ')+'.';
+ let ok=got===ans;
+ $('#fb').textContent=ok?'✅ Correct! '+ans:'❌ Correct sentence: '+ans;
+ say(ans); upd(ok); selected=[];
+}
+function phonicsGame(){
+ let set=Math.random()<.5?bank.phonicsU:bank.phonicsH; let w=pick(set);
+ let masked=w.replace(/[aeiou]/i,'_');
+ choiceCard('考试题型：Phonics',`Choose the word: ${masked}`,shuffle(set),w,'🔊');
+}
+function spellingGame(){
+ let list=[...bank.house.map(x=>x[0]),...bank.habitat.map(x=>x[0]),'healthy','computer','badminton','weekends'];
+ let word=pick(list); let scrambled=shuffle(word.replace(' ','').split('')).join(' ');
+ total++;
+ $('#app').innerHTML=`<div class="card"><div class="sub">考试题型：Spelling / Fill in the blank</div><div class="big">Unscramble: <span class="badge">${scrambled}</span></div><input id="answer" type="text" placeholder="Type the word"><div class="feedback" id="fb"></div><button class="smallbtn" onclick="checkSpell('${word}')">Check ✅</button> <button class="smallbtn" onclick="document.querySelector('#fb').textContent='Answer: ${word}'">Show Answer 👀</button> <button class="smallbtn" onclick="spellingGame()">Next ▶</button></div>`;
+ $('#answer').focus();
+}
+function checkSpell(ans){
+ if(document.querySelector('.card').dataset.answered==='1') return;
+ document.querySelector('.card').dataset.answered='1';
+ let got=$('#answer').value.trim().toLowerCase();
+ let ok=got===ans.toLowerCase();
+ $('#fb').textContent=ok?'✅ Correct!':'❌ Answer: '+ans;
+ say(ans); upd(ok);
+}
+function pick(a){return a[Math.floor(Math.random()*a.length)]}
+function shuffle(a){return a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(x=>x[1])}
+renderTabs(); setGame('days');
+</script>
+</body>
+</html>
