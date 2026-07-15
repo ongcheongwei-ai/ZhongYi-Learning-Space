@@ -33,6 +33,17 @@
     "updatedAt": "2026-07-15"
   },
   {
+    "id": "block-builder-math",
+    "title": "方块建造师 · 数学版",
+    "subject": "数学",
+    "age": "8岁",
+    "description": "像建造方块世界一样完成数学任务，边玩边练习。",
+    "url": "apps/block-builder-math/",
+    "accent": "#5B8731",
+    "favorite": true,
+    "updatedAt": "2026-07-15"
+  },
+  {
     "id": "addition-subtraction",
     "title": "加减法竖式练习",
     "subject": "数学",

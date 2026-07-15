@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>方块建造师 · 数学版</title>
+<meta name="learning-subject" content="数学">
+<meta name="learning-age" content="8岁">
+<meta name="learning-description" content="像建造方块世界一样完成数学任务，边玩边练习。">
+<meta name="learning-accent" content="#5B8731">
+<meta name="learning-favorite" content="true">
+<style>
+  :root{
+    --sky1:#7EC8F5; --sky2:#BFE6FF;
+    --ink:#3B2F23; --panel:#DEB57C; --panel-d:#B08850;
+    --wood:#8B5A2B; --green:#5B8731; --green-d:#3F6120;
+    --gold:#FFC53D; --gold-d:#D99C14; --red:#E45B5B;
+    --stone-ui:#9E9E9E;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+  html,body{height:100%;overscroll-behavior:none}
+  body{
+    font-family:"PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;
+    background:linear-gradient(var(--sky1), var(--sky2) 70%, #A8D8A0);
+    color:var(--ink);
+    display:flex;justify-content:center;
+  }
+  #app{width:100%;max-width:520px;padding:10px 10px 24px;display:flex;flex-direction:column;gap:10px}
+
+  /* ------- header ------- */
+  .hud{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .hud h1{font-size:18px;color:#fff;text-shadow:2px 2px 0 rgba(0,0,0,.25);letter-spacing:1px}
+  .hud .stars{background:#fff;border:3px solid var(--gold-d);border-radius:12px;
+    padding:4px 10px;font-weight:800;font-size:15px;box-shadow:0 3px 0 var(--gold-d)}
+
+  /* ------- pixel-panel look ------- */
+  .panel{
+    background:#F5E6C8;border:4px solid var(--panel-d);border-radius:6px;
+    box-shadow:inset 0 0 0 3px #FFF3DA, 0 4px 0 rgba(0,0,0,.15);
+    padding:10px;
+  }
+
+  /* ------- build grid ------- */
+  #world{
+    display:grid;gap:1px;background:rgba(255,255,255,.25);
+    border:4px solid var(--panel-d);border-radius:6px;overflow:hidden;
+    touch-action:none;
+  }
+  .cell{
+    aspect-ratio:1/1;background:transparent;position:relative;
+  }
+  .cell.ghost{outline:2px dashed rgba(255,255,255,.6);outline-offset:-3px}
+
+  /* block textures (pure CSS, blocky) */
+  .b{width:100%;height:100%}
+  .b-dirt {background:#8B5A2B;box-shadow:inset 3px 3px 0 #A0713D, inset -3px -3px 0 #6E441F}
+  .b-grass{background:#8B5A2B;box-shadow:inset 3px 3px 0 #A0713D, inset -3px -3px 0 #6E441F;position:relative}
+  .b-grass::before{content:"";position:absolute;left:0;top:0;width:100%;height:38%;
+    background:#6DBB45;box-shadow:inset 2px 2px 0 #8FD867, inset -2px -2px 0 #4E9130}
+  .b-wood {background:#C89B5F;box-shadow:inset 3px 3px 0 #DDB77E, inset -3px -3px 0 #9A7340;
+    background-image:repeating-linear-gradient(0deg, transparent 0 22%, rgba(122,82,48,.5) 22% 26%)}
+  .b-stone{background:#8F8F8F;box-shadow:inset 3px 3px 0 #ABABAB, inset -3px -3px 0 #6B6B6B}
+  .b-glass{background:rgba(200,240,255,.45);box-shadow:inset 0 0 0 3px rgba(255,255,255,.9)}
+  .b-leaf {background:#3E8C2F;box-shadow:inset 3px 3px 0 #55B040, inset -3px -3px 0 #2C6A20}
+  .b-wool-red   {background:#D9534F;box-shadow:inset 3px 3px 0 #E8807D, inset -3px -3px 0 #A93531}
+  .b-wool-yellow{background:#F3C531;box-shadow:inset 3px 3px 0 #FADf75, inset -3px -3px 0 #C79A12}
+  .b-wool-blue  {background:#4A7ED9;box-shadow:inset 3px 3px 0 #7AA3E8, inset -3px -3px 0 #2F5AA8}
+  .b-gold {background:#F5CE42;box-shadow:inset 3px 3px 0 #FFE98A, inset -3px -3px 0 #C79A12;
+    background-image:radial-gradient(circle at 30% 30%, rgba(255,255,255,.7) 0 12%, transparent 13%)}
+  .b-water{background:#4AA3DF;box-shadow:inset 0 -3px 0 #2F7CB8;opacity:.85}
+
+  /* ------- palette ------- */
+  .palette{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+  .slot{
+    border:3px solid var(--panel-d);border-radius:8px;background:#FFF3DA;
+    padding:5px 3px 3px;text-align:center;cursor:pointer;position:relative;
+    box-shadow:0 3px 0 var(--panel-d);
+  }
+  .slot.sel{border-color:var(--green);box-shadow:0 0 0 3px var(--green), 0 3px 0 var(--green-d);background:#EEF7E4}
+  .slot .swatch{width:30px;height:30px;margin:0 auto 3px}
+  .slot .cnt{font-size:12px;font-weight:800}
+  .slot .nm{font-size:10px;color:#7A6347;line-height:1.1}
+  .slot.zero .swatch{opacity:.3}
+  .slot.zero .cnt{color:var(--red)}
+  .slot.tool .swatch{font-size:24px;line-height:30px}
+
+  /* ------- buttons ------- */
+  .row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+  .btn{
+    border:none;cursor:pointer;font-weight:800;font-size:15px;font-family:inherit;
+    border-radius:8px;padding:11px 16px;color:#fff;
+    background:var(--green);box-shadow:0 4px 0 var(--green-d);transition:transform .08s;
+  }
+  .btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--green-d)}
+  .btn.gold{background:var(--gold);color:var(--ink);box-shadow:0 4px 0 var(--gold-d)}
+  .btn.gray{background:var(--stone-ui);box-shadow:0 4px 0 #6B6B6B}
+  .btn.small{font-size:13px;padding:8px 12px}
+
+  /* ------- modal ------- */
+  .overlay{position:fixed;inset:0;background:rgba(30,40,60,.55);display:flex;
+    align-items:center;justify-content:center;padding:16px;z-index:50}
+  .modal{width:100%;max-width:440px;max-height:88vh;overflow:auto}
+  .modal h2{font-size:19px;margin-bottom:8px;color:var(--green-d)}
+  .q-text{font-size:19px;line-height:1.7;font-weight:700;margin:8px 0 4px}
+  .q-sub{font-size:13px;color:#8A7458;margin-bottom:10px}
+  .choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+  .choice{
+    border:3px solid var(--panel-d);background:#FFF3DA;border-radius:10px;
+    font-size:26px;font-weight:800;padding:14px 0;cursor:pointer;text-align:center;
+    box-shadow:0 4px 0 var(--panel-d);font-family:inherit;color:var(--ink);
+  }
+  .choice:active{transform:translateY(3px);box-shadow:0 1px 0 var(--panel-d)}
+  .choice.right{background:#5B8731;border-color:#3F6120;color:#fff;box-shadow:0 4px 0 #3F6120;animation:pop .35s}
+  .choice.wrong{background:var(--red);border-color:#A93531;color:#fff;animation:shake .3s}
+  @keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+  @keyframes pop{0%{transform:scale(.7)}70%{transform:scale(1.1)}100%{transform:scale(1)}}
+  .fb{min-height:24px;text-align:center;font-weight:800;margin-top:10px;font-size:16px}
+  .fb.good{color:var(--green-d)} .fb.bad{color:var(--red)}
+  .speakq{background:none;border:none;font-size:22px;cursor:pointer;vertical-align:middle}
+
+  .mission{border:3px solid var(--panel-d);border-radius:10px;background:#FFF9EC;
+    padding:10px 12px;margin-top:10px}
+  .mission .t{font-weight:800;font-size:15px}
+  .mission .d{font-size:13px;color:#7A6347;margin:4px 0 8px;line-height:1.5}
+  .mission.done{background:#EEF7E4;border-color:var(--green)}
+  .mine-pick{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:10px}
+  .mine-opt{display:flex;align-items:center;gap:10px;border:3px solid var(--panel-d);
+    border-radius:10px;background:#FFF3DA;padding:8px 10px;cursor:pointer;box-shadow:0 3px 0 var(--panel-d)}
+  .mine-opt:active{transform:translateY(2px);box-shadow:0 1px 0 var(--panel-d)}
+  .mine-opt .swatch{width:34px;height:34px;flex:none}
+  .mine-opt .info{text-align:left}
+  .mine-opt .info b{font-size:14px;display:block}
+  .mine-opt .info span{font-size:11px;color:#8A7458}
+  .center{text-align:center}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="hud">
+    <h1>⛏️ 方块建造师</h1>
+    <div class="stars">⭐ <span id="starCnt">0</span></div>
+  </div>
+
+  <div id="world"></div>
+
+  <div class="panel">
+    <div class="palette" id="palette"></div>
+  </div>
+
+  <div class="row">
+    <button class="btn gold" id="mineBtn">⛏️ 挖矿赚方块</button>
+    <button class="btn" id="missionBtn">📜 任务书</button>
+    <button class="btn gray small" id="clearBtn">🧹 重新开始</button>
+  </div>
+  <p class="center" style="font-size:12px;color:#5A7A4A">
+    选一种方块,点格子放置;点已放的方块可以拆掉(材料退回背包)。
+  </p>
+</div>
+
+<script>
+"use strict";
+/* ================= blocks ================= */
+const BLOCKS = [
+  {id:"dirt",  nm:"泥土",   cls:"b-dirt",  tier:1, gain:10},
+  {id:"wood",  nm:"木板",   cls:"b-wood",  tier:2, gain:8},
+  {id:"stone", nm:"石头",   cls:"b-stone", tier:3, gain:8},
+  {id:"glass", nm:"玻璃",   cls:"b-glass", tier:4, gain:6},
+  {id:"leaf",  nm:"树叶",   cls:"b-leaf",  tier:2, gain:8},
+  {id:"water", nm:"水",     cls:"b-water", tier:1, gain:8},
+  {id:"wool-red",   nm:"红羊毛", cls:"b-wool-red",   tier:4, gain:6},
+  {id:"wool-yellow",nm:"黄羊毛", cls:"b-wool-yellow",tier:4, gain:6},
+  {id:"wool-blue",  nm:"蓝羊毛", cls:"b-wool-blue",  tier:4, gain:6},
+  {id:"gold",  nm:"金块",   cls:"b-gold",  tier:5, gain:5},
+];
+const TIER_NAME = {1:"简单 · 加减", 2:"合成 · 乘4", 3:"进阶 · 加减", 4:"乘法表", 5:"高手 · 综合"};
+const COLS = 12, ROWS = 11, FLOOR = ROWS - 1;
+
+/* ================= state ================= */
+let S = {
+  inv:{dirt:20, wood:12, stone:0, glass:0, leaf:8, water:6,
+       "wool-red":0, "wool-yellow":0, "wool-blue":0, gold:0},
+  grid:Array(ROWS * COLS).fill(null),
+  stars:0, sel:"dirt", missions:{}
+};
+// pre-filled grass floor
+for(let c=0;c<COLS;c++) S.grid[FLOOR*COLS+c] = "grass-floor";
+
+function saveS(){ try{ localStorage.setItem("builder-v1", JSON.stringify(S)); }catch(e){} }
+function loadS(){
+  try{
+    const raw = localStorage.getItem("builder-v1");
+    if(raw){ const d = JSON.parse(raw); if(d && d.grid && d.grid.length===ROWS*COLS) S = d; }
+  }catch(e){}
+}
+loadS();
+
+/* ================= speech ================= */
+function speak(t){
+  if(!("speechSynthesis" in window)) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(t);
+  u.lang = "zh-CN"; u.rate = 0.85;
+  speechSynthesis.speak(u);
+}
+
+/* ================= world rendering ================= */
+const world = document.getElementById("world");
+world.style.gridTemplateColumns = `repeat(${COLS},1fr)`;
+
+function blockCls(id){
+  if(id==="grass-floor") return "b-grass";
+  const b = BLOCKS.find(b=>b.id===id);
+  return b ? b.cls : "";
+}
+function renderWorld(){
+  world.innerHTML = "";
+  for(let i=0;i<ROWS*COLS;i++){
+    const cell = document.createElement("div");
+    cell.className = "cell";
+    cell.dataset.i = i;
+    const v = S.grid[i];
+    if(v){
+      const b = document.createElement("div");
+      b.className = "b " + blockCls(v);
+      cell.appendChild(b);
+    }
+    world.appendChild(cell);
+  }
+}
+
+/* place / remove with pointer drag */
+let painting = false;
+function handleCell(el){
+  if(!el || !el.dataset.i) return;
+  const i = +el.dataset.i;
+  const cur = S.grid[i];
+  if(cur === "grass-floor") return;                 // floor is permanent
+  if(cur){                                          // remove -> refund
+    S.grid[i] = null;
+    S.inv[cur] = (S.inv[cur]||0) + 1;
+  }else{
+    if((S.inv[S.sel]||0) <= 0){ flashSlot(S.sel); return; }
+    S.inv[S.sel]--;
+    S.grid[i] = S.sel;
+  }
+  saveS(); renderWorld(); renderPalette();
+}
+world.addEventListener("pointerdown", e=>{
+  painting = true;
+  handleCell(document.elementFromPoint(e.clientX,e.clientY)?.closest(".cell"));
+});
+world.addEventListener("pointermove", e=>{
+  if(!painting) return;
+  const el = document.elementFromPoint(e.clientX,e.clientY)?.closest(".cell");
+  if(el && !S.grid[+el.dataset.i] && (S.inv[S.sel]||0)>0){  // drag only paints empty cells
+    S.inv[S.sel]--; S.grid[+el.dataset.i] = S.sel;
+    saveS(); renderWorld(); renderPalette();
+  }
+});
+addEventListener("pointerup", ()=>painting=false);
+
+/* ================= palette ================= */
+const pal = document.getElementById("palette");
+function renderPalette(){
+  pal.innerHTML = "";
+  BLOCKS.forEach(b=>{
+    const n = S.inv[b.id]||0;
+    const s = document.createElement("div");
+    s.className = "slot" + (S.sel===b.id?" sel":"") + (n===0?" zero":"");
+    s.innerHTML = `<div class="swatch b ${b.cls}"></div><div class="cnt">${n}</div><div class="nm">${b.nm}</div>`;
+    s.onclick = ()=>{ S.sel=b.id; renderPalette(); };
+    s.dataset.id = b.id;
+    pal.appendChild(s);
+  });
+  document.getElementById("starCnt").textContent = S.stars;
+}
+function flashSlot(id){
+  const el = [...pal.children].find(c=>c.dataset.id===id);
+  if(el){ el.style.transform="scale(1.12)"; setTimeout(()=>el.style.transform="",180); }
+  toastQuiz(id);
+}
+
+/* ================= quiz generation ================= */
+function ri(a,b){ return a + Math.floor(Math.random()*(b-a+1)); }
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+
+function genQ(tier){
+  let text, ans, read;
+  if(tier===1){
+    if(Math.random()<0.5){ const a=ri(5,15),b=ri(3,9); text=`${a} + ${b} = ?`; ans=a+b; read=`${a} 加 ${b} 等于几?`; }
+    else{ const a=ri(10,20),b=ri(2,9); text=`${a} − ${b} = ?`; ans=a-b; read=`${a} 减 ${b} 等于几?`; }
+  }else if(tier===2){
+    const n=ri(3,9);
+    text=`1 个原木能做 4 块木板。\n${n} 个原木能做几块木板?`; ans=n*4;
+    read=`一个原木能做四块木板,${n} 个原木能做几块木板?`;
+  }else if(tier===3){
+    if(Math.random()<0.5){ const a=ri(25,60),b=ri(12,35); text=`${a} + ${b} = ?`; ans=a+b; read=`${a} 加 ${b} 等于几?`; }
+    else{ const a=ri(50,99),b=ri(15,40); text=`${a} − ${b} = ?`; ans=a-b; read=`${a} 减 ${b} 等于几?`; }
+  }else if(tier===4){
+    const t=[2,3,4,5][ri(0,3)], n=ri(2,9);
+    text=`${t} × ${n} = ?`; ans=t*n; read=`${t} 乘 ${n} 等于几?`;
+  }else{
+    if(Math.random()<0.5){
+      const L=ri(5,10), W=ri(3,6);
+      text=`长方形围墙:长 ${L} 格,宽 ${W} 格。\n绕一圈是多少格?`; ans=(L+W)*2;
+      read=`长方形围墙,长 ${L} 格,宽 ${W} 格,绕一圈是多少格?`;
+    }else{
+      const extra=ri(5,30);
+      text=`一组是 64 个。\n1 组再加 ${extra} 个,一共几个?`; ans=64+extra;
+      read=`一组是六十四个,一组再加 ${extra} 个,一共几个?`;
+    }
+  }
+  // distractors near the answer
+  const set = new Set([ans]);
+  while(set.size<4){
+    let d = ans + [ -10,-4,-2,-1,1,2,4,10 ][ri(0,7)];
+    if(d>0) set.add(d);
+  }
+  return { text, ans, read, opts: shuffle([...set]) };
+}
+
+/* ================= modals ================= */
+function openModal(html){
+  const ov = document.createElement("div");
+  ov.className = "overlay";
+  ov.innerHTML = `<div class="panel modal">${html}</div>`;
+  document.body.appendChild(ov);
+  return ov;
+}
+function closeModal(ov){ ov.remove(); }
+
+/* mining: pick a material -> answer question -> earn blocks */
+function toastQuiz(preferId){
+  openMine(preferId);
+}
+function openMine(preferId){
+  let html = `<h2>⛏️ 挖矿场 — 想要哪种方块?</h2>
+    <p style="font-size:13px;color:#7A6347">答对一题,方块进背包。越难的方块,题目越有挑战!</p>
+    <div class="mine-pick">`;
+  BLOCKS.forEach(b=>{
+    html += `<button class="mine-opt" data-id="${b.id}">
+      <div class="swatch b ${b.cls}"></div>
+      <div class="info"><b>${b.nm} ×${b.gain}</b><span>${TIER_NAME[b.tier]}</span></div>
+    </button>`;
+  });
+  html += `</div><div class="center" style="margin-top:12px">
+    <button class="btn gray small" id="cx">先不挖了</button></div>`;
+  const ov = openModal(html);
+  ov.querySelector("#cx").onclick = ()=>closeModal(ov);
+  ov.querySelectorAll(".mine-opt").forEach(btn=>{
+    btn.onclick = ()=>{ closeModal(ov); openQuiz(btn.dataset.id); };
+  });
+  if(preferId){
+    // jump straight to quiz for the empty slot the child tapped
+    closeModal(ov); openQuiz(preferId);
+  }
+}
+
+function openQuiz(blockId){
+  const b = BLOCKS.find(x=>x.id===blockId);
+  const q = genQ(b.tier);
+  let html = `<h2>⛏️ 挖「${b.nm}」</h2>
+    <div class="q-sub">${TIER_NAME[b.tier]} · 答对 +${b.gain} 个 <button class="speakq" id="sp">🔊</button></div>
+    <div class="q-text">${q.text.replace(/\n/g,"<br>")}</div>
+    <div class="choices">${q.opts.map((o,i)=>`<button class="choice" data-k="${i}">${o}</button>`).join("")}</div>
+    <div class="fb" id="fb"></div>
+    <div class="center"><button class="btn gray small" id="cx">返回</button></div>`;
+  const ov = openModal(html);
+  ov.querySelector("#cx").onclick = ()=>closeModal(ov);
+  ov.querySelector("#sp").onclick = ()=>speak(q.read);
+  let solved=false, tries=0;
+  ov.querySelectorAll(".choice").forEach(btn=>{
+    btn.onclick = ()=>{
+      if(solved) return;
+      const v = q.opts[+btn.dataset.k];
+      const fb = ov.querySelector("#fb");
+      if(v===q.ans){
+        solved = true;
+        btn.classList.add("right");
+        const gain = tries===0 ? b.gain : Math.max(2, Math.ceil(b.gain/2));
+        S.inv[b.id]=(S.inv[b.id]||0)+gain;
+        fb.textContent = `答对了!${b.nm} +${gain} ✨`;
+        fb.className="fb good";
+        saveS(); renderPalette();
+        setTimeout(()=>{ closeModal(ov); }, 1100);
+      }else{
+        tries++;
+        btn.classList.add("wrong");
+        fb.textContent = "再想想,你可以的!";
+        fb.className="fb bad";
+        setTimeout(()=>btn.classList.remove("wrong"), 450);
+      }
+    };
+  });
+}
+
+/* ================= missions ================= */
+const MISSIONS = [
+  {id:"house", t:"🏠 建一间小屋", d:"用木板 + 玻璃建一间有窗的房子(至少用 15 个方块)。建好后带爸爸/妈妈参观,用中文介绍:门在哪里、窗在哪里。", need:15, star:1},
+  {id:"tree",  t:"🌳 种一棵大树", d:"用木板做树干、树叶做树冠(至少用 12 个方块)。说一说:真的树需要什么才能长大?", need:12, star:1},
+  {id:"rainbow",t:"🌈 彩虹桥", d:"用红、黄、蓝羊毛铺一道彩虹(至少用 12 个羊毛)。铺好后用中文说出你用的颜色。", need:12, star:2},
+  {id:"castle",t:"🏰 黄金城堡", d:"用石头 + 金块建一座城堡(至少用 25 个方块)。完工后开「发布会」:讲一分钟,介绍你的城堡!", need:25, star:3},
+];
+function placedCount(){
+  return S.grid.filter(v=>v && v!=="grass-floor").length;
+}
+function openMissions(){
+  const n = placedCount();
+  let html = `<h2>📜 任务书</h2>
+  <p style="font-size:13px;color:#7A6347">你已经放了 <b>${n}</b> 个方块。完成任务 → 请爸爸/妈妈验收 → 领星星!</p>`;
+  MISSIONS.forEach(m=>{
+    const done = S.missions[m.id];
+    const can = n >= m.need;
+    html += `<div class="mission ${done?"done":""}">
+      <div class="t">${m.t} ${done?"✅":""} <span style="color:var(--gold-d)">${"⭐".repeat(m.star)}</span></div>
+      <div class="d">${m.d}</div>
+      ${done ? "" : `<button class="btn small ${can?"gold":"gray"}" data-id="${m.id}" ${can?"":"disabled"}>
+        ${can ? "爸爸/妈妈验收 ✔" : `还要再放 ${m.need-n} 个方块`}</button>`}
+    </div>`;
+  });
+  html += `<div class="center" style="margin-top:12px"><button class="btn gray small" id="cx">关闭</button></div>`;
+  const ov = openModal(html);
+  ov.querySelector("#cx").onclick = ()=>closeModal(ov);
+  ov.querySelectorAll("button[data-id]").forEach(btn=>{
+    btn.onclick = ()=>{
+      const m = MISSIONS.find(x=>x.id===btn.dataset.id);
+      S.missions[m.id]=true; S.stars+=m.star;
+      saveS(); renderPalette();
+      speak("任务完成,太棒了!");
+      closeModal(ov); openMissions();
+    };
+  });
+}
+
+/* ================= clear ================= */
+document.getElementById("clearBtn").onclick = ()=>{
+  const ov = openModal(`<h2>🧹 重新开始?</h2>
+    <p style="font-size:14px;line-height:1.6">拆掉所有方块,材料全部退回背包。星星和任务记录会保留。</p>
+    <div class="center" style="margin-top:12px">
+      <button class="btn" id="ok">好,重新建</button>
+      <button class="btn gray" id="cx">不要</button></div>`);
+  ov.querySelector("#cx").onclick = ()=>closeModal(ov);
+  ov.querySelector("#ok").onclick = ()=>{
+    S.grid.forEach((v,i)=>{
+      if(v && v!=="grass-floor"){ S.inv[v]=(S.inv[v]||0)+1; S.grid[i]=null; }
+    });
+    saveS(); renderWorld(); renderPalette(); closeModal(ov);
+  };
+};
+
+document.getElementById("mineBtn").onclick = ()=>openMine();
+document.getElementById("missionBtn").onclick = openMissions;
+
+renderWorld();
+renderPalette();
+</script>
+</body>
+</html>
