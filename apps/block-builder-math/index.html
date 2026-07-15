@@ -68,6 +68,26 @@
   .b-gold {background:#F5CE42;box-shadow:inset 3px 3px 0 #FFE98A, inset -3px -3px 0 #C79A12;
     background-image:radial-gradient(circle at 30% 30%, rgba(255,255,255,.7) 0 12%, transparent 13%)}
   .b-water{background:#4AA3DF;box-shadow:inset 0 -3px 0 #2F7CB8;opacity:.85}
+  .b-tnt{background:#C93B2F;box-shadow:inset 3px 3px 0 #E05548, inset -3px -3px 0 #8F2018;position:relative}
+  .b-tnt::before{content:"TNT";position:absolute;left:0;top:34%;width:100%;height:32%;
+    background:#F2E3C8;color:#C93B2F;font-size:9px;font-weight:900;letter-spacing:1px;
+    display:flex;align-items:center;justify-content:center}
+  .b-torch{position:relative;background:transparent}
+  .b-torch::before{content:"";position:absolute;left:42%;top:40%;width:16%;height:52%;background:#7A5230;
+    box-shadow:inset 1px 1px 0 #9A7340}
+  .b-torch::after{content:"";position:absolute;left:34%;top:14%;width:32%;height:30%;border-radius:40% 40% 30% 30%;
+    background:radial-gradient(circle at 50% 70%, #FFF3A0 0 30%, #FFB13D 60%, #E8622C 100%);
+    box-shadow:0 0 12px 4px rgba(255,190,80,.85)}
+  .fuse{animation:fuse .18s infinite alternate}
+  @keyframes fuse{from{filter:brightness(1)}to{filter:brightness(2.2) saturate(.4)}}
+  .boomfx{position:absolute;inset:0;z-index:5;border-radius:2px;pointer-events:none;
+    background:radial-gradient(circle, #FFF3A0 0 25%, #FFB13D 55%, rgba(232,98,44,0) 75%);
+    animation:boom .45s forwards}
+  @keyframes boom{0%{opacity:1;transform:scale(.4)}100%{opacity:0;transform:scale(1.6)}}
+  .shade{position:absolute;inset:0;background:#0B1430;pointer-events:none;z-index:4}
+  #world.night{border-color:#2A3350}
+  body.night{background:linear-gradient(#152040, #253358 70%, #1E3020)}
+  body.night .hud h1{text-shadow:2px 2px 0 rgba(0,0,0,.6)}
 
   /* ------- palette ------- */
   .palette{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
@@ -151,10 +171,12 @@
   <div class="row">
     <button class="btn gold" id="mineBtn">⛏️ 挖矿赚方块</button>
     <button class="btn" id="missionBtn">📜 任务书</button>
+    <button class="btn gray small" id="nightBtn">🌙 夜晚</button>
     <button class="btn gray small" id="clearBtn">🧹 重新开始</button>
   </div>
   <p class="center" style="font-size:12px;color:#5A7A4A">
-    选一种方块,点格子放置;点已放的方块可以拆掉(材料退回背包)。
+    选一种方块,点格子放置;点已放的方块可以拆掉(材料退回背包)。<br>
+    ⚠️ 点已放好的 TNT 会点燃它——小心连环爆炸!夜晚模式下,只有火把旁边是亮的。
   </p>
 </div>
 
@@ -163,25 +185,27 @@
 /* ================= blocks ================= */
 const BLOCKS = [
   {id:"dirt",  nm:"泥土",   cls:"b-dirt",  tier:1, gain:10},
-  {id:"wood",  nm:"木板",   cls:"b-wood",  tier:2, gain:8},
+  {id:"wood",  nm:"木板",   cls:"b-wood",  tier:2, gain:8, craft:{one:"1 个原木", out:"木板", unit:"块"}},
   {id:"stone", nm:"石头",   cls:"b-stone", tier:3, gain:8},
   {id:"glass", nm:"玻璃",   cls:"b-glass", tier:4, gain:6},
-  {id:"leaf",  nm:"树叶",   cls:"b-leaf",  tier:2, gain:8},
+  {id:"leaf",  nm:"树叶",   cls:"b-leaf",  tier:2, gain:8, craft:{one:"1 棵树", out:"树叶", unit:"片"}},
   {id:"water", nm:"水",     cls:"b-water", tier:1, gain:8},
+  {id:"torch", nm:"火把",   cls:"b-torch", tier:2, gain:6, craft:{one:"1 个煤炭 + 1 根木棍", out:"火把", unit:"支"}},
   {id:"wool-red",   nm:"红羊毛", cls:"b-wool-red",   tier:4, gain:6},
   {id:"wool-yellow",nm:"黄羊毛", cls:"b-wool-yellow",tier:4, gain:6},
   {id:"wool-blue",  nm:"蓝羊毛", cls:"b-wool-blue",  tier:4, gain:6},
   {id:"gold",  nm:"金块",   cls:"b-gold",  tier:5, gain:5},
+  {id:"tnt",   nm:"TNT",    cls:"b-tnt",   tier:5, gain:3},
 ];
 const TIER_NAME = {1:"简单 · 加减", 2:"合成 · 乘4", 3:"进阶 · 加减", 4:"乘法表", 5:"高手 · 综合"};
 const COLS = 12, ROWS = 11, FLOOR = ROWS - 1;
 
 /* ================= state ================= */
 let S = {
-  inv:{dirt:20, wood:12, stone:0, glass:0, leaf:8, water:6,
-       "wool-red":0, "wool-yellow":0, "wool-blue":0, gold:0},
+  inv:{dirt:20, wood:12, stone:0, glass:0, leaf:8, water:6, torch:2,
+       "wool-red":0, "wool-yellow":0, "wool-blue":0, gold:0, tnt:1},
   grid:Array(ROWS * COLS).fill(null),
-  stars:0, sel:"dirt", missions:{}
+  stars:0, sel:"dirt", missions:{}, night:false
 };
 // pre-filled grass floor
 for(let c=0;c<COLS;c++) S.grid[FLOOR*COLS+c] = "grass-floor";
@@ -194,6 +218,10 @@ function loadS(){
   }catch(e){}
 }
 loadS();
+// 兼容旧存档:补上新方块
+if(S.inv.torch === undefined) S.inv.torch = 2;
+if(S.inv.tnt === undefined) S.inv.tnt = 1;
+if(S.night === undefined) S.night = false;
 
 /* ================= speech ================= */
 function speak(t){
@@ -215,6 +243,13 @@ function blockCls(id){
 }
 function renderWorld(){
   world.innerHTML = "";
+  world.classList.toggle("night", S.night);
+  document.body.classList.toggle("night", S.night);
+  // 火把位置(夜晚照明用)
+  const torches = [];
+  if(S.night){
+    S.grid.forEach((v,k)=>{ if(v==="torch") torches.push([Math.floor(k/COLS), k%COLS]); });
+  }
   for(let i=0;i<ROWS*COLS;i++){
     const cell = document.createElement("div");
     cell.className = "cell";
@@ -225,7 +260,58 @@ function renderWorld(){
       b.className = "b " + blockCls(v);
       cell.appendChild(b);
     }
+    if(S.night){
+      const r=Math.floor(i/COLS), c=i%COLS;
+      let d=99;
+      for(const [tr,tc] of torches){
+        const dd=Math.max(Math.abs(tr-r),Math.abs(tc-c));
+        if(dd<d)d=dd;
+      }
+      const op = d<=1?0 : d===2?0.28 : d===3?0.52 : 0.74;
+      if(op>0){
+        const sh=document.createElement("div");
+        sh.className="shade"; sh.style.opacity=op;
+        cell.appendChild(sh);
+      }
+    }
     world.appendChild(cell);
+  }
+}
+
+/* ================= TNT ================= */
+let exploding = false;
+function ignite(i){
+  if(S.grid[i]!=="tnt") return;
+  exploding = true;
+  const cell = world.children[i];
+  if(cell && cell.firstChild) cell.firstChild.classList.add("fuse");
+  setTimeout(()=>explode(i), 800);
+}
+function explode(i){
+  if(S.grid[i]!=="tnt"){ exploding=false; return; }
+  const r0=Math.floor(i/COLS), c0=i%COLS;
+  const hit=[], chain=[];
+  for(let r=r0-1;r<=r0+1;r++)for(let c=c0-1;c<=c0+1;c++){
+    if(r<0||r>=ROWS||c<0||c>=COLS) continue;
+    const k=r*COLS+c;
+    const v=S.grid[k];
+    hit.push(k);
+    if(k===i){ S.grid[k]=null; continue; }
+    if(!v || v==="grass-floor") continue;
+    if(v==="tnt") chain.push(k);       // 连锁引爆!
+    else S.grid[k]=null;               // 炸掉的方块不退回 — 这就是 TNT!
+  }
+  saveS(); renderWorld(); renderPalette();
+  hit.forEach(k=>{
+    const fx=document.createElement("div");
+    fx.className="boomfx";
+    world.children[k].appendChild(fx);
+    setTimeout(()=>fx.remove(), 500);
+  });
+  if(chain.length){
+    chain.forEach((k,j)=>setTimeout(()=>ignite(k), 250*(j+1)));
+  }else{
+    exploding=false;
   }
 }
 
@@ -233,9 +319,11 @@ function renderWorld(){
 let painting = false;
 function handleCell(el){
   if(!el || !el.dataset.i) return;
+  if(exploding) return;                             // 爆炸中先别动
   const i = +el.dataset.i;
   const cur = S.grid[i];
   if(cur === "grass-floor") return;                 // floor is permanent
+  if(cur === "tnt"){ ignite(i); return; }           // 点 TNT = 点燃!
   if(cur){                                          // remove -> refund
     S.grid[i] = null;
     S.inv[cur] = (S.inv[cur]||0) + 1;
@@ -285,15 +373,16 @@ function flashSlot(id){
 function ri(a,b){ return a + Math.floor(Math.random()*(b-a+1)); }
 function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
 
-function genQ(tier){
+function genQ(tier, blk){
   let text, ans, read;
   if(tier===1){
     if(Math.random()<0.5){ const a=ri(5,15),b=ri(3,9); text=`${a} + ${b} = ?`; ans=a+b; read=`${a} 加 ${b} 等于几?`; }
     else{ const a=ri(10,20),b=ri(2,9); text=`${a} − ${b} = ?`; ans=a-b; read=`${a} 减 ${b} 等于几?`; }
   }else if(tier===2){
     const n=ri(3,9);
-    text=`1 个原木能做 4 块木板。\n${n} 个原木能做几块木板?`; ans=n*4;
-    read=`一个原木能做四块木板,${n} 个原木能做几块木板?`;
+    const cr = (blk && blk.craft) || {one:"1 个原木", out:"木板", unit:"块"};
+    text=`${cr.one}能做 4 ${cr.unit}${cr.out}。\n做 ${n} 次,能得到几${cr.unit}${cr.out}?`; ans=n*4;
+    read=`${cr.one}能做四${cr.unit}${cr.out},做 ${n} 次,能得到几${cr.unit}${cr.out}?`;
   }else if(tier===3){
     if(Math.random()<0.5){ const a=ri(25,60),b=ri(12,35); text=`${a} + ${b} = ?`; ans=a+b; read=`${a} 加 ${b} 等于几?`; }
     else{ const a=ri(50,99),b=ri(15,40); text=`${a} − ${b} = ?`; ans=a-b; read=`${a} 减 ${b} 等于几?`; }
@@ -359,7 +448,7 @@ function openMine(preferId){
 
 function openQuiz(blockId){
   const b = BLOCKS.find(x=>x.id===blockId);
-  const q = genQ(b.tier);
+  const q = genQ(b.tier, b);
   let html = `<h2>⛏️ 挖「${b.nm}」</h2>
     <div class="q-sub">${TIER_NAME[b.tier]} · 答对 +${b.gain} 个 <button class="speakq" id="sp">🔊</button></div>
     <div class="q-text">${q.text.replace(/\n/g,"<br>")}</div>
@@ -399,8 +488,10 @@ function openQuiz(blockId){
 const MISSIONS = [
   {id:"house", t:"🏠 建一间小屋", d:"用木板 + 玻璃建一间有窗的房子(至少用 15 个方块)。建好后带爸爸/妈妈参观,用中文介绍:门在哪里、窗在哪里。", need:15, star:1},
   {id:"tree",  t:"🌳 种一棵大树", d:"用木板做树干、树叶做树冠(至少用 12 个方块)。说一说:真的树需要什么才能长大?", need:12, star:1},
+  {id:"light", t:"🔥 点亮黑夜", d:"在你的建筑周围放至少 5 支火把,然后按「🌙 夜晚」检查:你的家够不够亮?告诉爸爸/妈妈:为什么 Minecraft 里晚上要插火把?", need:5, star:1},
   {id:"rainbow",t:"🌈 彩虹桥", d:"用红、黄、蓝羊毛铺一道彩虹(至少用 12 个羊毛)。铺好后用中文说出你用的颜色。", need:12, star:2},
   {id:"castle",t:"🏰 黄金城堡", d:"用石头 + 金块建一座城堡(至少用 25 个方块)。完工后开「发布会」:讲一分钟,介绍你的城堡!", need:25, star:3},
+  {id:"boom",  t:"💥 爆破专家", d:"建一座塔,在旁边放 2 个 TNT,点燃其中一个引发连环爆炸!炸完后向爸爸/妈妈描述:发生了什么?炸掉了几个方块?", need:10, star:2},
 ];
 function placedCount(){
   return S.grid.filter(v=>v && v!=="grass-floor").length;
@@ -451,6 +542,13 @@ document.getElementById("clearBtn").onclick = ()=>{
 
 document.getElementById("mineBtn").onclick = ()=>openMine();
 document.getElementById("missionBtn").onclick = openMissions;
+const nightBtn = document.getElementById("nightBtn");
+function syncNightBtn(){ nightBtn.textContent = S.night ? "☀️ 白天" : "🌙 夜晚"; }
+nightBtn.onclick = ()=>{
+  S.night = !S.night;
+  saveS(); renderWorld(); syncNightBtn();
+};
+syncNightBtn();
 
 renderWorld();
 renderPalette();
