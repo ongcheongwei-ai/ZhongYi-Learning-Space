@@ -8,7 +8,7 @@
     "url": "apps/multiplication-shooter/",
     "accent": "#06b6d4",
     "favorite": true,
-    "updatedAt": "2026-06-15"
+    "updatedAt": "2026-07-15"
   },
   {
     "id": "sample-math",
@@ -19,7 +19,7 @@
     "url": "apps/sample-math/",
     "accent": "#2563eb",
     "favorite": true,
-    "updatedAt": "2026-06-15"
+    "updatedAt": "2026-07-15"
   },
   {
     "id": "multiplication-planet",
@@ -30,7 +30,7 @@
     "url": "apps/multiplication-planet/",
     "accent": "#6b4bd8",
     "favorite": true,
-    "updatedAt": "2026-06-15"
+    "updatedAt": "2026-07-15"
   },
   {
     "id": "addition-subtraction",
@@ -41,7 +41,18 @@
     "url": "apps/addition-subtraction/",
     "accent": "#f59e0b",
     "favorite": true,
-    "updatedAt": "2026-06-15"
+    "updatedAt": "2026-07-15"
+  },
+  {
+    "id": "chinese-character-quest-grade2",
+    "title": "识字闯关 · 二年级",
+    "subject": "华文",
+    "age": "8岁",
+    "description": "二年级华文识字闯关小游戏，练习认字、读音和句子。",
+    "url": "apps/chinese-character-quest-grade2/",
+    "accent": "#3D8BFF",
+    "favorite": true,
+    "updatedAt": "2026-07-15"
   },
   {
     "id": "spelling-ejaan",
@@ -52,7 +63,7 @@
     "url": "apps/spelling-ejaan/",
     "accent": "#2196F3",
     "favorite": true,
-    "updatedAt": "2026-06-15"
+    "updatedAt": "2026-07-15"
   },
   {
     "id": "mario-spelling-lab",
@@ -63,7 +74,7 @@
     "url": "apps/mario-spelling-lab/",
     "accent": "#e4000f",
     "favorite": true,
-    "updatedAt": "2026-06-15"
+    "updatedAt": "2026-07-15"
   },
   {
     "id": "year2-english-exam-quest-unit5-6",
@@ -74,6 +85,6 @@
     "url": "apps/year2-english-exam-quest-unit5-6/",
     "accent": "#ff8a00",
     "favorite": true,
-    "updatedAt": "2026-06-15"
+    "updatedAt": "2026-07-15"
   }
 ]

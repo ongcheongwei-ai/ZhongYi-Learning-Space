@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>识字闯关 · 二年级</title>
+<meta name="learning-subject" content="华文">
+<meta name="learning-age" content="8岁">
+<meta name="learning-description" content="二年级华文识字闯关小游戏，练习认字、读音和句子。">
+<meta name="learning-accent" content="#3D8BFF">
+<meta name="learning-favorite" content="true">
+<style>
+  :root{
+    --sky:#DFF1FF; --ink:#1D3557; --blue:#3D8BFF; --blue-d:#2565C7;
+    --gold:#FFC53D; --gold-d:#E0A419; --green:#34C77B; --coral:#FF6B6B;
+    --card:#FFFFFF; --line:#C7DEF5;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    font-family:"PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;
+    background:var(--sky); color:var(--ink);
+    background-image:
+      radial-gradient(circle at 15% 20%, rgba(255,255,255,.8) 0 40px, transparent 41px),
+      radial-gradient(circle at 80% 12%, rgba(255,255,255,.7) 0 55px, transparent 56px),
+      radial-gradient(circle at 60% 85%, rgba(255,255,255,.5) 0 45px, transparent 46px);
+    display:flex; justify-content:center;
+  }
+  .hanzi{font-family:"Kaiti SC","KaiTi","STKaiti","BiauKai",serif}
+  #app{width:100%;max-width:480px;min-height:100%;padding:16px 16px 32px;position:relative}
+
+  /* ---------- header ---------- */
+  .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .top h1{font-size:20px;letter-spacing:1px}
+  .star-total{background:var(--card);border-radius:999px;padding:6px 14px;font-weight:700;
+    box-shadow:0 2px 0 var(--line);font-size:15px}
+
+  /* ---------- map ---------- */
+  .map-wrap{position:relative;padding:8px 0 20px}
+  .map-note{background:var(--card);border:2px solid var(--line);border-radius:16px;
+    padding:12px 14px;font-size:14px;line-height:1.6;margin-bottom:18px}
+  .trail{position:relative;display:flex;flex-direction:column;gap:22px}
+  .stop{display:flex;align-items:center;gap:14px;position:relative}
+  .stop:nth-child(even){flex-direction:row-reverse;text-align:right}
+  .stop::after{content:"";position:absolute;left:50%;bottom:-22px;width:4px;height:22px;
+    background:repeating-linear-gradient(var(--line) 0 5px, transparent 5px 10px)}
+  .stop:last-child::after{display:none}
+  .knob{
+    width:76px;height:76px;border-radius:50%;flex:none;
+    background:var(--card);border:4px solid var(--blue);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    font-weight:800;font-size:15px;cursor:pointer;
+    box-shadow:0 4px 0 var(--blue-d);transition:transform .1s;
+  }
+  .knob:active{transform:translateY(3px);box-shadow:0 1px 0 var(--blue-d)}
+  .knob.locked{border-color:#B8C6D6;box-shadow:0 4px 0 #93A5B8;color:#93A5B8;cursor:not-allowed}
+  .knob.done{border-color:var(--gold);box-shadow:0 4px 0 var(--gold-d)}
+  .knob .num{font-size:22px}
+  .stop-info{flex:1}
+  .stop-info .name{font-weight:800;font-size:16px}
+  .stop-info .stars{font-size:18px;letter-spacing:2px;color:var(--gold);margin-top:2px}
+  .stop-info .stars .off{color:#CBD8E4}
+  .badge-mic{font-size:13px;background:var(--green);color:#fff;border-radius:999px;
+    padding:1px 8px;margin-left:4px;vertical-align:2px}
+
+  /* ---------- quiz ---------- */
+  .panel{background:var(--card);border-radius:24px;padding:20px 18px;
+    box-shadow:0 6px 0 var(--line);margin-top:8px}
+  .quiz-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+  .back{background:none;border:none;font-size:15px;font-weight:700;color:var(--blue);cursor:pointer;padding:6px}
+  .dots{display:flex;gap:6px}
+  .dot{width:12px;height:12px;border-radius:50%;background:#DCE8F5}
+  .dot.ok{background:var(--green)} .dot.bad{background:var(--coral)} .dot.now{background:var(--blue)}
+  .q-label{text-align:center;font-size:15px;color:#5B7391;margin-bottom:10px;font-weight:700}
+  .q-stage{min-height:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+  .big-word{font-size:44px;font-weight:700}
+  .big-sentence{font-size:30px;line-height:1.6;text-align:center;padding:0 4px}
+  .blank{display:inline-block;min-width:1.2em;border-bottom:4px solid var(--blue);color:var(--blue);text-align:center}
+  .speak-btn{
+    width:88px;height:88px;border-radius:50%;border:none;cursor:pointer;
+    background:var(--blue);color:#fff;font-size:40px;
+    box-shadow:0 5px 0 var(--blue-d);transition:transform .1s;
+  }
+  .speak-btn:active{transform:translateY(3px);box-shadow:0 2px 0 var(--blue-d)}
+  .speak-hint{font-size:14px;color:#5B7391}
+  .opts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
+  .opt{
+    background:#F2F8FF;border:3px solid var(--line);border-radius:18px;
+    font-size:52px;padding:14px 0;cursor:pointer;text-align:center;
+    box-shadow:0 4px 0 var(--line);transition:transform .1s;
+  }
+  .opt:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
+  .opt.right{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 4px 0 #229459}
+  .opt.wrong{background:var(--coral);border-color:var(--coral);color:#fff;box-shadow:0 4px 0 #C74848;animation:shake .3s}
+  @keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+  .feedback{text-align:center;font-size:17px;font-weight:800;min-height:26px;margin-top:12px}
+  .feedback.good{color:var(--green)} .feedback.bad{color:var(--coral)}
+
+  /* ---------- read-aloud + result ---------- */
+  .center{text-align:center}
+  .result-stars{font-size:54px;letter-spacing:6px;margin:10px 0}
+  .result-stars .off{color:#DCE8F5}
+  .btn{
+    display:inline-block;border:none;cursor:pointer;font-weight:800;font-size:17px;
+    background:var(--gold);color:var(--ink);border-radius:999px;padding:13px 30px;
+    box-shadow:0 4px 0 var(--gold-d);transition:transform .1s;margin:6px 4px;
+  }
+  .btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--gold-d)}
+  .btn.blue{background:var(--blue);color:#fff;box-shadow:0 4px 0 var(--blue-d)}
+  .btn.plain{background:#EDF4FB;box-shadow:0 4px 0 var(--line)}
+  .read-sentence{font-size:32px;line-height:1.7;margin:14px 0;padding:14px;
+    background:#FFF7E0;border-radius:16px}
+  .small{font-size:14px;color:#5B7391;line-height:1.6}
+  .pop{animation:pop .4s}
+  @keyframes pop{0%{transform:scale(.6)}70%{transform:scale(1.12)}100%{transform:scale(1)}}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+"use strict";
+/* ================= 数据:两周 · 10 关 · 50 字 ================= */
+const LEVELS = [
+ {name:"早上", chars:[
+  {z:"早",py:"zǎo",w:"早上",s:"我早上七点起床。"},
+  {z:"起",py:"qǐ",w:"起床",s:"小鸟很早就起床了。"},
+  {z:"洗",py:"xǐ",w:"洗脸",s:"我先洗脸,再刷牙。"},
+  {z:"穿",py:"chuān",w:"穿衣",s:"我自己穿好校服。"},
+  {z:"吃",py:"chī",w:"吃饭",s:"我们一起吃早饭。"}]},
+ {name:"在学校", chars:[
+  {z:"学",py:"xué",w:"上学",s:"我每天走路上学。"},
+  {z:"校",py:"xiào",w:"学校",s:"我的学校很大很美。"},
+  {z:"班",py:"bān",w:"班级",s:"我在二年级一班。"},
+  {z:"课",py:"kè",w:"上课",s:"上课的时候要专心。"},
+  {z:"写",py:"xiě",w:"写字",s:"我会写自己的名字。"}]},
+ {name:"好朋友", chars:[
+  {z:"朋",py:"péng",w:"朋友",s:"小明是我的好朋友。"},
+  {z:"友",py:"yǒu",w:"好友",s:"我们是最好的朋友。"},
+  {z:"玩",py:"wán",w:"玩游戏",s:"下课了,我们去玩游戏。"},
+  {z:"跑",py:"pǎo",w:"跑步",s:"他跑步跑得很快。"},
+  {z:"笑",py:"xiào",w:"大笑",s:"大家笑得很开心。"}]},
+ {name:"回家了", chars:[
+  {z:"回",py:"huí",w:"回家",s:"放学了,我坐车回家。"},
+  {z:"家",py:"jiā",w:"家人",s:"我爱我的家人。"},
+  {z:"做",py:"zuò",w:"做功课",s:"我先做功课,再看电视。"},
+  {z:"功",py:"gōng",w:"功课",s:"今天的功课不太多。"},
+  {z:"完",py:"wán",w:"做完",s:"我做完功课了!"}]},
+ {name:"晚安", chars:[
+  {z:"晚",py:"wǎn",w:"晚上",s:"晚上的星星真亮。"},
+  {z:"饭",py:"fàn",w:"晚饭",s:"妈妈做的晚饭很好吃。"},
+  {z:"睡",py:"shuì",w:"睡觉",s:"我九点就去睡觉。"},
+  {z:"觉",py:"jiào",w:"午觉",s:"妹妹在睡午觉。"},
+  {z:"梦",py:"mèng",w:"做梦",s:"我做了一个好梦。"}]},
+ {name:"我的家人", chars:[
+  {z:"爸",py:"bà",w:"爸爸",s:"爸爸带我去公园。"},
+  {z:"妈",py:"mā",w:"妈妈",s:"妈妈会讲故事给我听。"},
+  {z:"哥",py:"gē",w:"哥哥",s:"哥哥教我踢足球。"},
+  {z:"姐",py:"jiě",w:"姐姐",s:"姐姐的字写得很好看。"},
+  {z:"弟",py:"dì",w:"弟弟",s:"弟弟今年三岁了。"}]},
+ {name:"我喜欢", chars:[
+  {z:"喜",py:"xǐ",w:"喜欢",s:"我喜欢画画。"},
+  {z:"欢",py:"huān",w:"欢乐",s:"生日会上大家很欢乐。"},
+  {z:"爱",py:"ài",w:"爱心",s:"妈妈画了一个爱心给我。"},
+  {z:"帮",py:"bāng",w:"帮忙",s:"我帮妈妈拿东西。"},
+  {z:"忙",py:"máng",w:"很忙",s:"爸爸今天工作很忙。"}]},
+ {name:"去买东西", chars:[
+  {z:"买",py:"mǎi",w:"买菜",s:"我和妈妈去买菜。"},
+  {z:"菜",py:"cài",w:"青菜",s:"多吃青菜身体好。"},
+  {z:"水",py:"shuǐ",w:"水果",s:"我最喜欢吃水果。"},
+  {z:"果",py:"guǒ",w:"果汁",s:"这杯果汁真好喝。"},
+  {z:"喝",py:"hē",w:"喝水",s:"运动后要多喝水。"}]},
+ {name:"我会做的事", chars:[
+  {z:"看",py:"kàn",w:"看书",s:"我每天晚上看书。"},
+  {z:"书",py:"shū",w:"故事书",s:"这本故事书很好看。"},
+  {z:"画",py:"huà",w:"画画",s:"我画了一只小猫。"},
+  {z:"图",py:"tú",w:"图画",s:"他的图画得了第一名。"},
+  {z:"唱",py:"chàng",w:"唱歌",s:"我们在课室里唱歌。"}]},
+ {name:"今天的天气", chars:[
+  {z:"天",py:"tiān",w:"天气",s:"今天的天气很好。"},
+  {z:"气",py:"qì",w:"生气",s:"他不生气了,笑了。"},
+  {z:"热",py:"rè",w:"很热",s:"中午的太阳很热。"},
+  {z:"雨",py:"yǔ",w:"下雨",s:"下雨了,记得带伞。"},
+  {z:"风",py:"fēng",w:"大风",s:"风把树叶吹走了。"}]}
+];
+const ALL_CHARS = LEVELS.flatMap(l=>l.chars);
+
+/* ================= 存档(本地打开可保存;不可用时自动降级为本次记忆) ================= */
+let progress = {stars:{}, mic:{}};
+function loadSave(){
+  try{
+    const raw = localStorage.getItem("shizi-v1");
+    if(raw) progress = JSON.parse(raw);
+  }catch(e){/* 无法持久化时用内存 */}
+}
+function save(){
+  try{ localStorage.setItem("shizi-v1", JSON.stringify(progress)); }catch(e){}
+}
+loadSave();
+
+/* ================= 语音 ================= */
+let zhVoice = null, ttsOK = false;
+function initTTS(){
+  if(!("speechSynthesis" in window)) return;
+  const pick = ()=>{
+    const vs = speechSynthesis.getVoices();
+    zhVoice = vs.find(v=>/^zh([-_]CN)?/i.test(v.lang)) || vs.find(v=>/^zh/i.test(v.lang)) || null;
+    ttsOK = vs.length>0 ? !!zhVoice : true; // 有些浏览器语音列表延迟加载
+  };
+  pick();
+  speechSynthesis.onvoiceschanged = pick;
+  ttsOK = true;
+}
+function speak(text, rate){
+  if(!("speechSynthesis" in window)) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "zh-CN";
+  if(zhVoice) u.voice = zhVoice;
+  u.rate = rate || 0.85;
+  speechSynthesis.speak(u);
+}
+initTTS();
+
+/* ================= 工具 ================= */
+const app = document.getElementById("app");
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+function pickDistractors(target, n){
+  const pool = shuffle(ALL_CHARS.filter(c=>c.z!==target.z));
+  return pool.slice(0,n);
+}
+function totalStars(){
+  let t=0; for(const k in progress.stars) t+=progress.stars[k];
+  for(const k in progress.mic) if(progress.mic[k]) t+=1;
+  return t;
+}
+function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;");}
+
+/* ================= 地图页 ================= */
+function renderMap(){
+  speechSynthesis && speechSynthesis.cancel && speechSynthesis.cancel();
+  let html = `
+  <div class="top">
+    <h1>🏔️ 识字闯关</h1>
+    <div class="star-total">⭐ ${totalStars()}</div>
+  </div>
+  <div class="map-wrap">
+    <div class="map-note">每一关有 5 个字、6 个题。答完还有「大声读」挑战,读出来可以多拿一颗星!🔊</div>
+    <div class="trail">`;
+  LEVELS.forEach((lv,i)=>{
+    const stars = progress.stars[i]||0;
+    const unlocked = i===0 || (progress.stars[i-1]||0)>0;
+    const done = stars>0;
+    const starStr = [1,2,3].map(n=>`<span class="${n<=stars?"":"off"}">★</span>`).join("");
+    html += `
+      <div class="stop">
+        <button class="knob ${done?"done":""} ${unlocked?"":"locked"}" data-i="${i}" ${unlocked?"":"disabled"}>
+          <span class="num">${unlocked?(done?"✅":i+1):"🔒"}</span>
+          <span>第${i+1}关</span>
+        </button>
+        <div class="stop-info">
+          <div class="name">${lv.name}${progress.mic[i]?'<span class="badge-mic">🔊读过</span>':""}</div>
+          <div class="stars">${starStr}</div>
+        </div>
+      </div>`;
+  });
+  html += `</div></div>`;
+  app.innerHTML = html;
+  app.querySelectorAll(".knob:not(.locked)").forEach(b=>{
+    b.onclick = ()=>startLevel(+b.dataset.i);
+  });
+}
+
+/* ================= 出题 ================= */
+function buildQuestions(levelIdx){
+  const chars = LEVELS[levelIdx].chars;
+  const qs = [];
+  // 每个字一题(类型轮换),再加 1 题随机复习 = 6 题
+  const types = shuffle(["listen","word","sentence","listen","word"]);
+  chars.forEach((c,i)=>qs.push(makeQ(c, types[i])));
+  const extra = shuffle(chars)[0];
+  qs.push(makeQ(extra, "sentence"));
+  return shuffle(qs);
+}
+function makeQ(c, type){
+  if(type==="listen" && !ttsOK) type = "word";
+  const opts = shuffle([c, ...pickDistractors(c,3)]);
+  return {type, c, opts};
+}
+
+/* ================= 答题页 ================= */
+let state = null;
+function startLevel(i){
+  state = {level:i, qs:buildQuestions(i), qi:0, wrong:0, results:[]};
+  renderQuestion();
+}
+function renderQuestion(){
+  const {level, qs, qi} = state;
+  const q = qs[qi];
+  const dots = qs.map((_,k)=>{
+    const r = state.results[k];
+    return `<span class="dot ${k===qi?"now":r==="ok"?"ok":r==="bad"?"bad":""}"></span>`;
+  }).join("");
+
+  let stage="", label="";
+  if(q.type==="listen"){
+    label = "听一听,选出正确的字";
+    stage = `
+      <button class="speak-btn" id="playBtn">🔊</button>
+      <div class="speak-hint">点喇叭听词语,再选字</div>`;
+  }else if(q.type==="word"){
+    const blanked = q.c.w.replace(q.c.z, "?");
+    label = "哪个字放进去才对?";
+    stage = `<div class="big-word hanzi">${esc(blanked).replace("?", '<span class="blank">?</span>')}</div>
+             <div class="speak-hint">(${esc(q.c.py)})</div>`;
+  }else{
+    const blanked = esc(q.c.s).replace(q.c.z, '<span class="blank">?</span>');
+    label = "句子里少了哪个字?";
+    stage = `<div class="big-sentence hanzi">${blanked}</div>`;
+  }
+
+  app.innerHTML = `
+  <div class="panel">
+    <div class="quiz-top">
+      <button class="back" id="backBtn">← 地图</button>
+      <div class="dots">${dots}</div>
+      <span style="width:52px"></span>
+    </div>
+    <div class="q-label">第${state.level+1}关 · ${label}</div>
+    <div class="q-stage">${stage}</div>
+    <div class="opts">
+      ${q.opts.map((o,k)=>`<button class="opt hanzi" data-k="${k}">${o.z}</button>`).join("")}
+    </div>
+    <div class="feedback" id="fb"></div>
+  </div>`;
+
+  document.getElementById("backBtn").onclick = renderMap;
+  const play = document.getElementById("playBtn");
+  if(play){
+    play.onclick = ()=>speak(q.c.w);
+    setTimeout(()=>speak(q.c.w), 400);
+  }
+
+  let answered = false;
+  app.querySelectorAll(".opt").forEach(btn=>{
+    btn.onclick = ()=>{
+      if(answered) return;
+      const pick = q.opts[+btn.dataset.k];
+      const fb = document.getElementById("fb");
+      if(pick.z === q.c.z){
+        answered = true;
+        btn.classList.add("right","pop");
+        fb.textContent = shuffle(["太棒了!","答对啦!","真厉害!","好眼力!"])[0];
+        fb.className = "feedback good";
+        state.results[state.qi] = state.results[state.qi]==="bad" ? "bad" : "ok";
+        speak(q.c.w + "。" + q.c.s, 0.85);
+        setTimeout(nextQ, 1600);
+      }else{
+        btn.classList.add("wrong");
+        fb.textContent = "再想想,你可以的!";
+        fb.className = "feedback bad";
+        state.wrong++;
+        state.results[state.qi] = "bad";
+        setTimeout(()=>btn.classList.remove("wrong"), 500);
+      }
+    };
+  });
+}
+function nextQ(){
+  state.qi++;
+  if(state.qi < state.qs.length) renderQuestion();
+  else renderReadAloud();
+}
+
+/* ================= 大声读挑战 ================= */
+function renderReadAloud(){
+  const lv = LEVELS[state.level];
+  const sent = shuffle(lv.chars)[0].s;
+  state.readSentence = sent;
+  app.innerHTML = `
+  <div class="panel center">
+    <div class="q-label">🎤 大声读挑战</div>
+    <p class="small">先点喇叭听一遍,然后大声读出来。<br>读给爸爸/妈妈听,读完就能多拿一颗星!</p>
+    <div class="read-sentence hanzi">${esc(sent)}</div>
+    <button class="btn blue" id="hear">🔊 听一遍</button>
+    <div style="margin-top:14px">
+      <button class="btn" id="didRead">我大声读完了!⭐</button>
+      <button class="btn plain" id="skip">这次先跳过</button>
+    </div>
+  </div>`;
+  document.getElementById("hear").onclick = ()=>speak(sent, 0.8);
+  document.getElementById("didRead").onclick = ()=>{ progress.mic[state.level]=true; finishLevel(); };
+  document.getElementById("skip").onclick = finishLevel;
+}
+
+/* ================= 结算 ================= */
+function finishLevel(){
+  const n = state.qs.length;
+  const stars = state.wrong===0 ? 3 : state.wrong<=2 ? 2 : 1;
+  const prev = progress.stars[state.level]||0;
+  progress.stars[state.level] = Math.max(prev, stars);
+  save();
+  const micGot = progress.mic[state.level];
+  const starStr = [1,2,3].map(k=>`<span class="${k<=stars?"":"off"}">★</span>`).join("");
+  const msg = stars===3 ? "全对!你是识字小高手!" : stars===2 ? "很棒!差一点点就全对了!" : "闯关成功!再玩一次可以拿更多星星!";
+  app.innerHTML = `
+  <div class="panel center">
+    <div class="q-label">第${state.level+1}关 · ${LEVELS[state.level].name}</div>
+    <div class="result-stars pop">${starStr}</div>
+    <p style="font-weight:800;font-size:18px">${msg}</p>
+    ${micGot?'<p class="small" style="margin-top:6px">🔊 大声读 +1 星,声音真好听!</p>':""}
+    <div style="margin-top:18px">
+      <button class="btn blue" id="again">再玩这关</button>
+      <button class="btn" id="toMap">回到地图</button>
+    </div>
+  </div>`;
+  if(stars===3) speak("太厉害了,三颗星!");
+  document.getElementById("again").onclick = ()=>startLevel(state.level);
+  document.getElementById("toMap").onclick = renderMap;
+}
+
+renderMap();
+</script>
+</body>
+</html>
