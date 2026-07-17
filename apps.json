@@ -8,7 +8,7 @@
     "url": "apps/multiplication-shooter/",
     "accent": "#06b6d4",
     "favorite": true,
-    "updatedAt": "2026-07-15"
+    "updatedAt": "2026-07-17"
   },
   {
     "id": "sample-math",
@@ -19,7 +19,7 @@
     "url": "apps/sample-math/",
     "accent": "#2563eb",
     "favorite": true,
-    "updatedAt": "2026-07-15"
+    "updatedAt": "2026-07-17"
   },
   {
     "id": "multiplication-planet",
@@ -30,7 +30,7 @@
     "url": "apps/multiplication-planet/",
     "accent": "#6b4bd8",
     "favorite": true,
-    "updatedAt": "2026-07-15"
+    "updatedAt": "2026-07-17"
   },
   {
     "id": "block-builder-math",
@@ -41,7 +41,7 @@
     "url": "apps/block-builder-math/",
     "accent": "#5B8731",
     "favorite": true,
-    "updatedAt": "2026-07-15"
+    "updatedAt": "2026-07-17"
   },
   {
     "id": "addition-subtraction",
@@ -52,7 +52,7 @@
     "url": "apps/addition-subtraction/",
     "accent": "#f59e0b",
     "favorite": true,
-    "updatedAt": "2026-07-15"
+    "updatedAt": "2026-07-17"
   },
   {
     "id": "chinese-character-quest-grade2",
@@ -63,7 +63,7 @@
     "url": "apps/chinese-character-quest-grade2/",
     "accent": "#3D8BFF",
     "favorite": true,
-    "updatedAt": "2026-07-15"
+    "updatedAt": "2026-07-17"
   },
   {
     "id": "spelling-ejaan",
@@ -74,7 +74,7 @@
     "url": "apps/spelling-ejaan/",
     "accent": "#2196F3",
     "favorite": true,
-    "updatedAt": "2026-07-15"
+    "updatedAt": "2026-07-17"
   },
   {
     "id": "mario-spelling-lab",
@@ -85,7 +85,7 @@
     "url": "apps/mario-spelling-lab/",
     "accent": "#e4000f",
     "favorite": true,
-    "updatedAt": "2026-07-15"
+    "updatedAt": "2026-07-17"
   },
   {
     "id": "year2-english-exam-quest-unit5-6",
@@ -96,6 +96,6 @@
     "url": "apps/year2-english-exam-quest-unit5-6/",
     "accent": "#ff8a00",
     "favorite": true,
-    "updatedAt": "2026-07-15"
+    "updatedAt": "2026-07-17"
   }
 ]

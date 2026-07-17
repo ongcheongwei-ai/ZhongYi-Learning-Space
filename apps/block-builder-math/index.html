@@ -18,6 +18,7 @@
     --stone-ui:#9E9E9E;
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+  .hanzi{font-family:"Kaiti SC","KaiTi","STKaiti","BiauKai",serif}
   html,body{height:100%;overscroll-behavior:none}
   body{
     font-family:"PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;
@@ -89,7 +90,99 @@
   body.night{background:linear-gradient(#152040, #253358 70%, #1E3020)}
   body.night .hud h1{text-shadow:2px 2px 0 rgba(0,0,0,.6)}
 
+  /* furniture & sky */
+  .b-chair{background:
+    linear-gradient(#7A5230,#7A5230) 18% 12%/13% 78% no-repeat,
+    linear-gradient(#9A7340,#9A7340) 18% 55%/62% 14% no-repeat,
+    linear-gradient(#7A5230,#7A5230) 68% 60%/13% 32% no-repeat}
+  .b-bed{background:
+    linear-gradient(#F2EFE4,#F2EFE4) 10% 40%/24% 20% no-repeat,
+    linear-gradient(#C9403B,#C9403B) 38% 40%/56% 20% no-repeat,
+    linear-gradient(#8B5A2B,#8B5A2B) 8% 60%/86% 14% no-repeat,
+    linear-gradient(#6E441F,#6E441F) 8% 74%/10% 16% no-repeat,
+    linear-gradient(#6E441F,#6E441F) 84% 74%/10% 16% no-repeat}
+  .b-tv, .b-tv-on{position:relative;background:
+    linear-gradient(#2B2B2B,#2B2B2B) 12% 14%/76% 54% no-repeat,
+    linear-gradient(#3B4A5A,#3B4A5A) 18% 21%/64% 40% no-repeat,
+    linear-gradient(#2B2B2B,#2B2B2B) 44% 68%/12% 12% no-repeat,
+    linear-gradient(#2B2B2B,#2B2B2B) 30% 80%/40% 8% no-repeat}
+  .b-tv-on::before{content:"";position:absolute;left:18%;top:21%;width:64%;height:40%;
+    background:linear-gradient(45deg,#FF6B6B,#FFC53D,#5B8731,#4A7ED9,#B45BD9);
+    background-size:300% 300%;animation:tvplay 1.6s infinite alternate;
+    box-shadow:0 0 10px 2px rgba(140,190,255,.8)}
+  @keyframes tvplay{from{background-position:0% 0%}to{background-position:100% 100%}}
+  .b-sun{position:relative;background:transparent}
+  .b-sun::before{content:"";position:absolute;left:18%;top:18%;width:64%;height:64%;border-radius:50%;
+    background:radial-gradient(circle at 40% 40%, #FFF6C8 0 35%, #FFD94D 70%, #F5A623 100%);
+    box-shadow:0 0 16px 6px rgba(255,214,90,.9)}
+  .b-moon{position:relative;background:transparent}
+  .b-moon::before{content:"";position:absolute;left:16%;top:14%;width:66%;height:66%;border-radius:50%;
+    box-shadow:inset -8px 4px 0 2px #EDE9D8, 0 0 10px 2px rgba(220,225,255,.55)}
+  .b-mountain{position:relative;background:transparent}
+  .b-mountain::before{content:"";position:absolute;inset:0;
+    background:linear-gradient(160deg,#A5A5A5,#6B6B6B);
+    clip-path:polygon(50% 4%, 96% 96%, 4% 96%)}
+  .b-mountain::after{content:"";position:absolute;inset:0;background:#F4F6F8;
+    clip-path:polygon(50% 4%, 67% 38%, 58% 31%, 50% 40%, 42% 30%, 33% 38%)}
+  .b-tree{position:relative;background:transparent}
+  .b-tree::before{content:"";position:absolute;left:42%;top:52%;width:16%;height:44%;
+    background:#7A5230;box-shadow:inset 2px 2px 0 #9A7340}
+  .b-tree::after{content:"";position:absolute;left:14%;top:4%;width:72%;height:58%;
+    border-radius:50% 50% 46% 46%;
+    background:radial-gradient(circle at 35% 30%, #55B040 0 40%, #3E8C2F 75%, #2C6A20 100%)}
+  .b-bookshelf{background:
+    repeating-linear-gradient(90deg,#C9403B 0 17%,#4A7ED9 17% 33%,#F3C531 33% 51%,#5B8731 51% 68%,#B45BD9 68% 84%,#E8895A 84% 100%) 14% 12%/72% 32% no-repeat,
+    repeating-linear-gradient(90deg,#5B8731 0 16%,#F3C531 16% 35%,#B45BD9 35% 50%,#C9403B 50% 69%,#4A7ED9 69% 85%,#F2EFE4 85% 100%) 14% 56%/72% 32% no-repeat,
+    linear-gradient(#9A7340,#9A7340);
+    box-shadow:inset 3px 3px 0 #B08850, inset -3px -3px 0 #6E441F}
+  .b-tvstand{background:
+    linear-gradient(#6E441F,#6E441F) 46% 62%/8% 14% no-repeat,
+    linear-gradient(#6E441F,#6E441F) 6% 42%/88% 9% no-repeat,
+    linear-gradient(#8B5A2B,#8B5A2B) 10% 50%/80% 34% no-repeat,
+    linear-gradient(#6E441F,#6E441F) 14% 84%/9% 12% no-repeat,
+    linear-gradient(#6E441F,#6E441F) 78% 84%/9% 12% no-repeat}
+  .b-sofa{background:
+    linear-gradient(#2F5AA8,#2F5AA8) 4% 30%/13% 48% no-repeat,
+    linear-gradient(#2F5AA8,#2F5AA8) 83% 30%/13% 48% no-repeat,
+    linear-gradient(#6B99E8,#6B99E8) 15% 54%/70% 24% no-repeat,
+    linear-gradient(#4A7ED9,#4A7ED9) 15% 24%/70% 32% no-repeat,
+    linear-gradient(#6E441F,#6E441F) 12% 82%/9% 14% no-repeat,
+    linear-gradient(#6E441F,#6E441F) 79% 82%/9% 14% no-repeat}
+  .b-frame{position:relative;background:
+    linear-gradient(#7CB342,#7CB342) 20% 56%/60% 24% no-repeat,
+    linear-gradient(#AEE1FF,#AEE1FF) 20% 20%/60% 60% no-repeat,
+    linear-gradient(#C8860A,#C8860A);
+    box-shadow:inset 3px 3px 0 #E0A419, inset -3px -3px 0 #96650A}
+  .b-frame::before{content:"";position:absolute;left:56%;top:26%;width:16%;height:16%;
+    border-radius:50%;background:#FFD94D}
+  .b-stairs{background:linear-gradient(135deg,#DDB77E,#C89B5F 55%,#9A7340);
+    clip-path:polygon(0% 100%, 0% 50%, 50% 50%, 50% 0%, 100% 0%, 100% 100%)}
+  .b-stairs-flip{background:linear-gradient(225deg,#DDB77E,#C89B5F 55%,#9A7340);
+    clip-path:polygon(0% 0%, 50% 0%, 50% 50%, 100% 50%, 100% 100%, 0% 100%)}
+  .b-flower{position:relative;background:transparent}
+  .b-flower::before{content:"";position:absolute;left:46%;top:42%;width:9%;height:54%;
+    background:#3E8C2F;
+    box-shadow:-5px 6px 0 -1px #55B040, 5px 10px 0 -1px #55B040}
+  .b-flower::after{content:"";position:absolute;left:27%;top:8%;width:46%;height:46%;
+    border-radius:50%;
+    background:radial-gradient(circle, #F3C531 0 28%, #D9534F 30% 100%);
+    box-shadow:0 0 0 2px rgba(169,53,49,.35)}
+  .b-tallgrass{position:relative;background:transparent}
+  .b-tallgrass::before{content:"";position:absolute;left:10%;right:10%;top:26%;bottom:4%;
+    background:linear-gradient(#55B040,#3E8C2F);
+    clip-path:polygon(0% 100%, 7% 48%, 16% 100%, 26% 18%, 36% 100%, 50% 0%, 63% 100%, 73% 22%, 83% 100%, 92% 45%, 100% 100%)}
+
   /* ------- palette ------- */
+  .pal-top{display:flex;gap:6px;margin-bottom:8px}
+  .tabbtn{flex:1;border:2px solid var(--panel-d);background:#FFF3DA;border-radius:8px;
+    padding:7px 2px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;
+    color:#7A6347;position:relative}
+  .tabbtn.on{background:var(--green);border-color:var(--green-d);color:#fff}
+  .tabbtn .dot{position:absolute;top:2px;right:4px;color:var(--gold);font-size:11px}
+  .tabbtn.on .dot{color:#FFF3A0}
+  .hammerbtn{width:44px;flex:none;border:2px solid var(--panel-d);background:#FFF3DA;
+    border-radius:8px;font-size:18px;cursor:pointer}
+  .hammerbtn.on{background:var(--green);border-color:var(--green-d)}
   .palette{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
   .slot{
     border:3px solid var(--panel-d);border-radius:8px;background:#FFF3DA;
@@ -165,6 +258,7 @@
   <div id="world"></div>
 
   <div class="panel">
+    <div class="pal-top" id="palTop"></div>
     <div class="palette" id="palette"></div>
   </div>
 
@@ -174,28 +268,46 @@
     <button class="btn gray small" id="nightBtn">🌙 夜晚</button>
     <button class="btn gray small" id="clearBtn">🧹 重新开始</button>
   </div>
-  <p class="center" style="font-size:12px;color:#5A7A4A">
-    选一种方块,点格子放置;点已放的方块可以拆掉(材料退回背包)。<br>
-    ⚠️ 点已放好的 TNT 会点燃它——小心连环爆炸!夜晚模式下,只有火把旁边是亮的。
-  </p>
+  <details style="text-align:center">
+    <summary style="font-size:12px;color:#5A7A4A;cursor:pointer;font-weight:700">❓ 怎么玩</summary>
+    <p class="center" style="font-size:12px;color:#5A7A4A;margin-top:6px">
+      选一种方块点格子放置;点普通方块可拆掉退料,选🔨可以拆任何东西(连TNT都能安全拆走)。<br>
+      ⚠️ 点TNT会点燃它!📺 点电视开/关机。📚 点书架抽一本书来读,读完有奖励!🪜 点楼梯换方向。<br>
+      🌙 夜晚时:点床睡觉直接到天亮;火把、太阳、月亮会发光。
+    </p>
+  </details>
 </div>
 
 <script>
 "use strict";
 /* ================= blocks ================= */
 const BLOCKS = [
-  {id:"dirt",  nm:"泥土",   cls:"b-dirt",  tier:1, gain:10},
-  {id:"wood",  nm:"木板",   cls:"b-wood",  tier:2, gain:8, craft:{one:"1 个原木", out:"木板", unit:"块"}},
-  {id:"stone", nm:"石头",   cls:"b-stone", tier:3, gain:8},
-  {id:"glass", nm:"玻璃",   cls:"b-glass", tier:4, gain:6},
-  {id:"leaf",  nm:"树叶",   cls:"b-leaf",  tier:2, gain:8, craft:{one:"1 棵树", out:"树叶", unit:"片"}},
-  {id:"water", nm:"水",     cls:"b-water", tier:1, gain:8},
-  {id:"torch", nm:"火把",   cls:"b-torch", tier:2, gain:6, craft:{one:"1 个煤炭 + 1 根木棍", out:"火把", unit:"支"}},
-  {id:"wool-red",   nm:"红羊毛", cls:"b-wool-red",   tier:4, gain:6},
-  {id:"wool-yellow",nm:"黄羊毛", cls:"b-wool-yellow",tier:4, gain:6},
-  {id:"wool-blue",  nm:"蓝羊毛", cls:"b-wool-blue",  tier:4, gain:6},
-  {id:"gold",  nm:"金块",   cls:"b-gold",  tier:5, gain:5},
-  {id:"tnt",   nm:"TNT",    cls:"b-tnt",   tier:5, gain:3},
+  {id:"dirt", cat:"basic",  nm:"泥土",   cls:"b-dirt",  tier:1, gain:10},
+  {id:"wood", cat:"basic",  nm:"木板",   cls:"b-wood",  tier:2, gain:8, craft:{one:"1 个原木", out:"木板", unit:"块"}},
+  {id:"stone", cat:"basic", nm:"石头",   cls:"b-stone", tier:3, gain:8},
+  {id:"glass", cat:"basic", nm:"玻璃",   cls:"b-glass", tier:4, gain:6},
+  {id:"leaf", cat:"basic",  nm:"树叶",   cls:"b-leaf",  tier:2, gain:8, craft:{one:"1 棵树", out:"树叶", unit:"片"}},
+  {id:"water", cat:"basic", nm:"水",     cls:"b-water", tier:1, gain:8},
+  {id:"torch", cat:"special", nm:"火把",   cls:"b-torch", tier:2, gain:6, craft:{one:"1 个煤炭 + 1 根木棍", out:"火把", unit:"支"}},
+  {id:"wool-red", cat:"special",   nm:"红羊毛", cls:"b-wool-red",   tier:4, gain:6},
+  {id:"wool-yellow", cat:"special",nm:"黄羊毛", cls:"b-wool-yellow",tier:4, gain:6},
+  {id:"wool-blue", cat:"special",  nm:"蓝羊毛", cls:"b-wool-blue",  tier:4, gain:6},
+  {id:"gold", cat:"special",  nm:"金块",   cls:"b-gold",  tier:5, gain:5},
+  {id:"tnt", cat:"special",   nm:"TNT",    cls:"b-tnt",   tier:5, gain:3},
+  {id:"chair", cat:"furni", nm:"椅子",   cls:"b-chair", tier:3, gain:3},
+  {id:"tv", cat:"furni",    nm:"电视机", cls:"b-tv",    tier:4, gain:2},
+  {id:"bed", cat:"furni",   nm:"床",     cls:"b-bed",   tier:3, gain:2},
+  {id:"sun", cat:"nature",   nm:"太阳",   cls:"b-sun",   tier:5, gain:1},
+  {id:"moon", cat:"nature",  nm:"月亮",   cls:"b-moon",  tier:5, gain:1},
+  {id:"mountain", cat:"nature", nm:"山",  cls:"b-mountain", tier:3, gain:4},
+  {id:"tree", cat:"nature",  nm:"树",     cls:"b-tree",  tier:2, gain:6, craft:{one:"1 包树苗", out:"树", unit:"棵", verb:"种出"}},
+  {id:"bookshelf", cat:"furni", nm:"书架", cls:"b-bookshelf", tier:4, gain:2},
+  {id:"tvstand", cat:"furni", nm:"电视架", cls:"b-tvstand", tier:3, gain:2},
+  {id:"sofa", cat:"furni",  nm:"沙发",   cls:"b-sofa",  tier:4, gain:2},
+  {id:"frame", cat:"furni", nm:"相框",   cls:"b-frame", tier:1, gain:3},
+  {id:"stairs", cat:"furni", nm:"楼梯",  cls:"b-stairs", tier:3, gain:4},
+  {id:"flower", cat:"nature", nm:"花",    cls:"b-flower", tier:1, gain:5},
+  {id:"tallgrass", cat:"nature", nm:"草", cls:"b-tallgrass", tier:1, gain:6},
 ];
 const TIER_NAME = {1:"简单 · 加减", 2:"合成 · 乘4", 3:"进阶 · 加减", 4:"乘法表", 5:"高手 · 综合"};
 const COLS = 12, ROWS = 11, FLOOR = ROWS - 1;
@@ -203,7 +315,10 @@ const COLS = 12, ROWS = 11, FLOOR = ROWS - 1;
 /* ================= state ================= */
 let S = {
   inv:{dirt:20, wood:12, stone:0, glass:0, leaf:8, water:6, torch:2,
-       "wool-red":0, "wool-yellow":0, "wool-blue":0, gold:0, tnt:1},
+       "wool-red":0, "wool-yellow":0, "wool-blue":0, gold:0, tnt:1,
+       chair:1, tv:1, bed:1, sun:0, moon:0,
+       mountain:0, tree:2, bookshelf:1, tvstand:1, sofa:0, frame:1,
+       stairs:2, flower:3, tallgrass:4},
   grid:Array(ROWS * COLS).fill(null),
   stars:0, sel:"dirt", missions:{}, night:false
 };
@@ -218,17 +333,21 @@ function loadS(){
   }catch(e){}
 }
 loadS();
-// 兼容旧存档:补上新方块
-if(S.inv.torch === undefined) S.inv.torch = 2;
-if(S.inv.tnt === undefined) S.inv.tnt = 1;
+// 兼容旧存档:补上新方块(带见面礼)
+const STARTERS = {torch:2, tnt:1, chair:1, tv:1, bed:1, sun:0, moon:0,
+                  mountain:0, tree:2, bookshelf:1, tvstand:1, sofa:0, frame:1,
+                  stairs:2, flower:3, tallgrass:4};
+for(const k in STARTERS){ if(S.inv[k] === undefined) S.inv[k] = STARTERS[k]; }
 if(S.night === undefined) S.night = false;
+if(S.tab === undefined) S.tab = "basic";
+if(S.sel === undefined || (S.sel!=="hammer" && !S.inv.hasOwnProperty(S.sel))) S.sel = "dirt";
 
 /* ================= speech ================= */
-function speak(t){
+function speak(t, rate){
   if(!("speechSynthesis" in window)) return;
   speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(t);
-  u.lang = "zh-CN"; u.rate = 0.85;
+  u.lang = "zh-CN"; u.rate = rate || 0.85;
   speechSynthesis.speak(u);
 }
 
@@ -236,8 +355,19 @@ function speak(t){
 const world = document.getElementById("world");
 world.style.gridTemplateColumns = `repeat(${COLS},1fr)`;
 
+/* 画布尺寸:用 JS 直接算格子高度,不依赖 aspect-ratio(部分浏览器不支持) */
+function sizeWorld(){
+  const w = world.clientWidth - 8;          // 扣掉边框
+  const cell = Math.floor((w - (COLS-1)) / COLS);
+  world.style.gridAutoRows = cell + "px";
+  world.style.minHeight = (cell*ROWS + ROWS-1) + "px";
+}
+addEventListener("resize", sizeWorld);
+
 function blockCls(id){
   if(id==="grass-floor") return "b-grass";
+  if(id==="tv-on") return "b-tv-on";
+  if(id==="stairs-flip") return "b-stairs-flip";
   const b = BLOCKS.find(b=>b.id===id);
   return b ? b.cls : "";
 }
@@ -245,10 +375,12 @@ function renderWorld(){
   world.innerHTML = "";
   world.classList.toggle("night", S.night);
   document.body.classList.toggle("night", S.night);
-  // 火把位置(夜晚照明用)
-  const torches = [];
+  // 光源(夜晚照明用):火把、太阳、月亮
+  const lights = [];
   if(S.night){
-    S.grid.forEach((v,k)=>{ if(v==="torch") torches.push([Math.floor(k/COLS), k%COLS]); });
+    S.grid.forEach((v,k)=>{
+      if(v==="torch"||v==="sun"||v==="moon") lights.push([Math.floor(k/COLS), k%COLS, v]);
+    });
   }
   for(let i=0;i<ROWS*COLS;i++){
     const cell = document.createElement("div");
@@ -262,12 +394,15 @@ function renderWorld(){
     }
     if(S.night){
       const r=Math.floor(i/COLS), c=i%COLS;
-      let d=99;
-      for(const [tr,tc] of torches){
-        const dd=Math.max(Math.abs(tr-r),Math.abs(tc-c));
-        if(dd<d)d=dd;
+      let op=0.74;
+      for(const [lr,lc,lt] of lights){
+        const d=Math.max(Math.abs(lr-r),Math.abs(lc-c));
+        let o;
+        if(lt==="sun")       o = d<=3?0    : d===4?0.18 : d<=5?0.38 : 0.74; // 太阳:强光
+        else if(lt==="moon") o = d<=1?0.15 : d===2?0.35 : d===3?0.55 : 0.74; // 月亮:柔光
+        else                 o = d<=1?0    : d===2?0.28 : d===3?0.52 : 0.74; // 火把
+        if(o<op) op=o;
       }
-      const op = d<=1?0 : d===2?0.28 : d===3?0.52 : 0.74;
       if(op>0){
         const sh=document.createElement("div");
         sh.className="shade"; sh.style.opacity=op;
@@ -317,16 +452,36 @@ function explode(i){
 
 /* place / remove with pointer drag */
 let painting = false;
+function baseId(v){
+  if(v==="tv-on") return "tv";
+  if(v==="stairs-flip") return "stairs";
+  return v;
+}
 function handleCell(el){
   if(!el || !el.dataset.i) return;
   if(exploding) return;                             // 爆炸中先别动
   const i = +el.dataset.i;
   const cur = S.grid[i];
   if(cur === "grass-floor") return;                 // floor is permanent
+  if(S.sel === "hammer"){                           // 🔨 拆除模式:什么都能安全拆(包括 TNT)
+    if(!cur) return;
+    S.grid[i] = null;
+    const b = baseId(cur);
+    S.inv[b] = (S.inv[b]||0) + 1;
+    saveS(); renderWorld(); renderPalette();
+    return;
+  }
   if(cur === "tnt"){ ignite(i); return; }           // 点 TNT = 点燃!
+  if(cur === "bed" && S.night){ sleep(); return; }  // 夜晚点床 = 睡觉到天亮
+  if(cur === "tv"){ S.grid[i]="tv-on"; saveS(); renderWorld(); return; }   // 开电视
+  if(cur === "tv-on"){ S.grid[i]="tv"; saveS(); renderWorld(); return; }   // 关电视
+  if(cur === "bookshelf"){ openBook(); return; }    // 点书架 = 抽一本书来读!
+  if(cur === "stairs"){ S.grid[i]="stairs-flip"; saveS(); renderWorld(); return; }  // 换方向 ↰
+  if(cur === "stairs-flip"){ S.grid[i]="stairs"; saveS(); renderWorld(); return; }  // 换方向 ↱
   if(cur){                                          // remove -> refund
     S.grid[i] = null;
-    S.inv[cur] = (S.inv[cur]||0) + 1;
+    const b = baseId(cur);
+    S.inv[b] = (S.inv[b]||0) + 1;
   }else{
     if((S.inv[S.sel]||0) <= 0){ flashSlot(S.sel); return; }
     S.inv[S.sel]--;
@@ -334,12 +489,61 @@ function handleCell(el){
   }
   saveS(); renderWorld(); renderPalette();
 }
+function sleep(){
+  const ov = openModal(`<h2 class="center">😴 睡觉中……</h2>
+    <p class="center" style="font-size:44px;margin:8px 0">🛏️💤</p>`);
+  setTimeout(()=>{
+    S.night = false;
+    saveS(); renderWorld(); syncNightBtn();
+    closeModal(ov);
+    speak("天亮啦!");
+  }, 1200);
+}
+
+/* ================= 书架:抽书朗读 ================= */
+const BOOKS = [
+  "我早上七点起床。","小鸟很早就起床了。","我的学校很大很美。",
+  "小明是我的好朋友。","下课了,我们去玩游戏。","放学了,我坐车回家。",
+  "妈妈做的晚饭很好吃。","晚上的星星真亮。","爸爸带我去公园。",
+  "我喜欢画画。","这本故事书很好看。","今天的天气很好。",
+  "我画了一只小猫。","风把树叶吹走了。","我最喜欢吃水果。",
+  "多吃青菜身体好。","我帮妈妈拿东西。","我们在课室里唱歌。"
+];
+const BOOK_REWARDS = ["dirt","wood","stone","glass"];
+function openBook(){
+  const sent = BOOKS[Math.floor(Math.random()*BOOKS.length)];
+  const ov = openModal(`<h2>📖 你从书架上抽到一本书!</h2>
+    <p style="font-size:13px;color:#7A6347">先点🔊听一遍,再大声读给爸爸/妈妈听。读完有神秘奖励!</p>
+    <div class="q-text hanzi" style="font-size:26px;background:#FFF9EC;border-radius:10px;padding:14px;text-align:center">${sent}</div>
+    <div class="center" style="margin-top:12px">
+      <button class="btn" id="hear">🔊 听一遍</button>
+      <button class="btn gold" id="didRead">我大声读完了!🎁</button>
+    </div>
+    <div class="fb" id="bfb"></div>
+    <div class="center"><button class="btn gray small" id="cx">把书放回去</button></div>`);
+  ov.querySelector("#hear").onclick = ()=>speak(sent, 0.8);
+  ov.querySelector("#cx").onclick = ()=>closeModal(ov);
+  let claimed = false;
+  ov.querySelector("#didRead").onclick = ()=>{
+    if(claimed) return;
+    claimed = true;
+    const rid = BOOK_REWARDS[Math.floor(Math.random()*BOOK_REWARDS.length)];
+    const rb = BLOCKS.find(b=>b.id===rid);
+    S.inv[rid] = (S.inv[rid]||0) + 3;
+    saveS(); renderPalette();
+    const fb = ov.querySelector("#bfb");
+    fb.textContent = `读书奖励:${rb.nm} +3 ✨ 知识就是财富!`;
+    fb.className = "fb good";
+    speak("读得真好听!");
+    setTimeout(()=>closeModal(ov), 1600);
+  };
+}
 world.addEventListener("pointerdown", e=>{
   painting = true;
   handleCell(document.elementFromPoint(e.clientX,e.clientY)?.closest(".cell"));
 });
 world.addEventListener("pointermove", e=>{
-  if(!painting) return;
+  if(!painting || S.sel==="hammer") return;
   const el = document.elementFromPoint(e.clientX,e.clientY)?.closest(".cell");
   if(el && !S.grid[+el.dataset.i] && (S.inv[S.sel]||0)>0){  // drag only paints empty cells
     S.inv[S.sel]--; S.grid[+el.dataset.i] = S.sel;
@@ -350,20 +554,48 @@ addEventListener("pointerup", ()=>painting=false);
 
 /* ================= palette ================= */
 const pal = document.getElementById("palette");
+const palTop = document.getElementById("palTop");
+const TABS = [
+  {id:"basic",  nm:"🧱 方块"},
+  {id:"furni",  nm:"🛋️ 家具"},
+  {id:"nature", nm:"🌳 自然"},
+  {id:"special",nm:"✨ 特殊"},
+];
+if(!S.tab) S.tab = "basic";
 function renderPalette(){
+  // tabs + hammer
+  palTop.innerHTML = "";
+  const selBlock = BLOCKS.find(b=>b.id===S.sel);
+  TABS.forEach(t=>{
+    const btn = document.createElement("button");
+    btn.className = "tabbtn" + (S.tab===t.id?" on":"");
+    btn.innerHTML = t.nm + (selBlock && selBlock.cat===t.id ? '<span class="dot">●</span>' : "");
+    btn.onclick = ()=>{ S.tab=t.id; saveS(); renderPalette(); };
+    palTop.appendChild(btn);
+  });
+  const hb = document.createElement("button");
+  hb.className = "hammerbtn" + (S.sel==="hammer"?" on":"");
+  hb.textContent = "🔨";
+  hb.title = "拆除";
+  hb.onclick = ()=>{ S.sel="hammer"; saveS(); renderPalette(); };
+  palTop.appendChild(hb);
+
+  // slots of the active tab only
   pal.innerHTML = "";
-  BLOCKS.forEach(b=>{
+  BLOCKS.filter(b=>b.cat===S.tab).forEach(b=>{
     const n = S.inv[b.id]||0;
     const s = document.createElement("div");
     s.className = "slot" + (S.sel===b.id?" sel":"") + (n===0?" zero":"");
     s.innerHTML = `<div class="swatch b ${b.cls}"></div><div class="cnt">${n}</div><div class="nm">${b.nm}</div>`;
-    s.onclick = ()=>{ S.sel=b.id; renderPalette(); };
+    s.onclick = ()=>{ S.sel=b.id; saveS(); renderPalette(); };
     s.dataset.id = b.id;
     pal.appendChild(s);
   });
   document.getElementById("starCnt").textContent = S.stars;
 }
 function flashSlot(id){
+  const b = BLOCKS.find(x=>x.id===id);
+  if(b && S.tab!==b.cat){ S.tab=b.cat; renderPalette(); }
   const el = [...pal.children].find(c=>c.dataset.id===id);
   if(el){ el.style.transform="scale(1.12)"; setTimeout(()=>el.style.transform="",180); }
   toastQuiz(id);
@@ -381,8 +613,9 @@ function genQ(tier, blk){
   }else if(tier===2){
     const n=ri(3,9);
     const cr = (blk && blk.craft) || {one:"1 个原木", out:"木板", unit:"块"};
-    text=`${cr.one}能做 4 ${cr.unit}${cr.out}。\n做 ${n} 次,能得到几${cr.unit}${cr.out}?`; ans=n*4;
-    read=`${cr.one}能做四${cr.unit}${cr.out},做 ${n} 次,能得到几${cr.unit}${cr.out}?`;
+    const vb = cr.verb || "做";
+    text=`${cr.one}能${vb} 4 ${cr.unit}${cr.out}。\n${vb} ${n} 次,能得到几${cr.unit}${cr.out}?`; ans=n*4;
+    read=`${cr.one}能${vb}四${cr.unit}${cr.out},${vb} ${n} 次,能得到几${cr.unit}${cr.out}?`;
   }else if(tier===3){
     if(Math.random()<0.5){ const a=ri(25,60),b=ri(12,35); text=`${a} + ${b} = ?`; ans=a+b; read=`${a} 加 ${b} 等于几?`; }
     else{ const a=ri(50,99),b=ri(15,40); text=`${a} − ${b} = ?`; ans=a-b; read=`${a} 减 ${b} 等于几?`; }
@@ -492,6 +725,9 @@ const MISSIONS = [
   {id:"rainbow",t:"🌈 彩虹桥", d:"用红、黄、蓝羊毛铺一道彩虹(至少用 12 个羊毛)。铺好后用中文说出你用的颜色。", need:12, star:2},
   {id:"castle",t:"🏰 黄金城堡", d:"用石头 + 金块建一座城堡(至少用 25 个方块)。完工后开「发布会」:讲一分钟,介绍你的城堡!", need:25, star:3},
   {id:"boom",  t:"💥 爆破专家", d:"建一座塔,在旁边放 2 个 TNT,点燃其中一个引发连环爆炸!炸完后向爸爸/妈妈描述:发生了什么?炸掉了几个方块?", need:10, star:2},
+  {id:"home",  t:"🛋️ 温馨的家", d:"用椅子、电视机和床布置一个真正的家(至少 18 个方块)。打开电视,告诉爸爸/妈妈:你在「看」什么节目?节目里发生了什么?讲得越多越好!", need:18, star:2},
+  {id:"library", t:"📚 小小图书馆", d:"放至少 3 个书架,布置一个图书馆。然后点书架抽书,大声读 3 本书给爸爸/妈妈听。读完一本还有材料奖励哦!", need:8, star:2},
+  {id:"park", t:"🏞️ 美丽的公园", d:"用山、树、水、花、草建一个公园(至少 15 个方块),挂上太阳。带爸爸/妈妈「散步」,一路介绍:这里有什么?那里有什么?", need:15, star:2},
 ];
 function placedCount(){
   return S.grid.filter(v=>v && v!=="grass-floor").length;
@@ -534,7 +770,7 @@ document.getElementById("clearBtn").onclick = ()=>{
   ov.querySelector("#cx").onclick = ()=>closeModal(ov);
   ov.querySelector("#ok").onclick = ()=>{
     S.grid.forEach((v,i)=>{
-      if(v && v!=="grass-floor"){ S.inv[v]=(S.inv[v]||0)+1; S.grid[i]=null; }
+      if(v && v!=="grass-floor"){ const b=baseId(v); S.inv[b]=(S.inv[b]||0)+1; S.grid[i]=null; }
     });
     saveS(); renderWorld(); renderPalette(); closeModal(ov);
   };
@@ -550,6 +786,7 @@ nightBtn.onclick = ()=>{
 };
 syncNightBtn();
 
+sizeWorld();
 renderWorld();
 renderPalette();
 </script>
